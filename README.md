@@ -4,7 +4,7 @@ A modern, interactive web-based scheduling tool for managing student workers acr
 
 
 
-\# 🗓️ Student Worker Schedule Board
+# 🗓️ Student Worker Schedule Board
 
 
 
