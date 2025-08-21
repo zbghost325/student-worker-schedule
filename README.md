@@ -12,11 +12,11 @@ A comprehensive, browser-based scheduling application designed specifically for 
 
 
 
-\## ✨ Key Features
+## ✨ Key Features
 
 
 
-\- \*\*Visual Drag \& Drop Scheduling\*\* - Intuitive calendar grid with click-to-schedule and drag-to-move functionality
+- **Visual Drag \& Drop Scheduling\*\* - Intuitive calendar grid with click-to-schedule and drag-to-move functionality
 
 \- \*\*Multiple Worker Categories\*\* - Support for Full-time Staff, Co-op Students, Part-time Students, and Work-study Students
 
