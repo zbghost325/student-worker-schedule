@@ -87,7 +87,7 @@
             color: white;
         }
         
-        .btn-start-secondary:hover {
+        .btn-start-secondary.hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
         }
@@ -363,6 +363,55 @@
             word-break: break-word;
         }
         
+        .shift-block.locked {
+            border-color: #ff6b6b;
+            border-width: 3px;
+            cursor: not-allowed !important;
+            background-image: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255, 107, 107, 0.1) 10px,
+                    rgba(255, 107, 107, 0.1) 20px
+                ),
+                linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+        }
+        
+        .lock-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            opacity: 0;
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+        
+        .shift-block:hover .lock-btn {
+            opacity: 1;
+        }
+        
+        .lock-btn.locked {
+            background: #ff6b6b;
+            color: white;
+            opacity: 1;
+        }
+        
+        .lock-btn:hover {
+            transform: scale(1.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
         .shift-block.narrow {
             padding: 2px 1px;
         }
@@ -560,6 +609,15 @@
         
         .btn-danger:hover {
             background: #da190b;
+        }
+        
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e68900;
         }
         
         .modal {
@@ -902,6 +960,39 @@
             overflow-y: auto;
             user-select: all;
         }
+        
+        .lock-status {
+            padding: 10px 20px;
+            background: #fff3cd;
+            border-top: 1px solid #ffc107;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+        
+        .lock-status-icon {
+            font-size: 16px;
+        }
+        
+        .lock-status-text {
+            flex: 1;
+        }
+        
+        .unlock-all-btn {
+            padding: 4px 12px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .unlock-all-btn:hover {
+            background: #ff5252;
+        }
     </style>
 </head>
 <body>
@@ -926,14 +1017,14 @@
                 </button>
                 
                 <button class="btn-start-secondary" onclick="loadFromStart()">
-                    <span class="btn-icon">📁</span>
+                    <span class="btn-icon">📂</span>
                     <span class="btn-text">Load Saved State</span>
                     <span class="btn-desc">Import a previously saved schedule</span>
                 </button>
             </div>
             
             <div class="start-footer">
-                <p>Features: Drag & drop scheduling • Break management • Export formats • Save/load states</p>
+                <p>Features: Drag & drop scheduling • Break management • Export formats • Save/load states • Lock shifts</p>
             </div>
         </div>
         <input type="file" id="startLoadFile" accept=".json" style="display: none;">
@@ -977,6 +1068,16 @@
                 <span class="stat-label">Shifts w/ Breaks:</span>
                 <span id="totalBreaks">0</span>
             </div>
+            <div class="stat-item">
+                <span class="stat-label">🔒 Locked Shifts:</span>
+                <span id="totalLocked">0</span>
+            </div>
+        </div>
+        
+        <div class="lock-status" id="lockStatus" style="display: none;">
+            <span class="lock-status-icon">🔒</span>
+            <span class="lock-status-text">Some shifts are locked and will be preserved during auto-scheduling</span>
+            <button class="unlock-all-btn" onclick="unlockAllShifts()">Unlock All</button>
         </div>
         
         <div class="legend" id="legend">
@@ -997,7 +1098,9 @@
                     ☕ Over 6 hour student shifts include 30min unpaid break<br>
                     💾 Custom filename: Edit semester/version for save names<br>
                     📄 Generate shows formatted schedules you can copy<br>
-                    🎯 Add Manual Break for custom break policies
+                    🎯 Add Manual Break for custom break policies<br>
+                    🔒 Lock shifts to prevent editing/deletion<br>
+                    🛡️ Locked shifts cannot be deleted, moved, or resized
                 </div>
                 
                 <div class="category-toggles">
@@ -1064,11 +1167,11 @@
             <button class="btn btn-primary" id="manualEntryBtn">Manual Shift Entry</button>
             <button class="btn btn-secondary" id="manualBreakBtn">Add Manual Break</button>
             <button class="btn btn-secondary" id="clearScheduleBtn">Clear Schedule</button>
-            <button class="btn btn-secondary" id="autoScheduleBtn">Auto-Schedule</button>
+            <button class="btn btn-warning" id="autoScheduleBtn">Auto-Schedule (Respects 🔒)</button>
             <button class="btn btn-danger" id="resetAllBtn">Reset All</button>
             <button class="btn btn-primary" id="exportBtn">Generate Worker Schedules</button>
             <button class="btn btn-secondary" id="saveStateBtn">💾 Save State</button>
-            <button class="btn btn-secondary" id="loadStateBtn">📁 Load State</button>
+            <button class="btn btn-secondary" id="loadStateBtn">📂 Load State</button>
             <button class="btn btn-secondary" id="backToMenuBtn" onclick="backToMenu()">🏠 Back to Menu</button>
             <input type="file" id="loadStateFile" accept=".json" style="display: none;">
         </div>
@@ -1255,6 +1358,7 @@
         let workers = [];
         let schedule = {};
         let manualBreaks = {}; // Store manual breaks: {workerId-dayIndex: {duration, type, notes}}
+        let lockedShifts = {}; // Store locked shifts: {dayIndex-startTime-workerId: true}
         let selectedWorker = null;
         let draggedShift = null;
         let draggedWorker = null;
@@ -1315,6 +1419,7 @@
             workers = [];
             schedule = {};
             manualBreaks = {};
+            lockedShifts = {};
             selectedWorker = null;
             categoryVisibility = { fullTime: true, coop: true, partTime: true, workStudy: true };
             
@@ -1335,6 +1440,7 @@
             updateStats();
             updateHeaderDisplay();
             updateLegend();
+            updateLockStatus();
         }
 
         function loadSampleData() {
@@ -1541,69 +1647,13 @@
                 ],
                 '2-9': [ // Tuesday 11:30 AM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                
-                // Thursday - Multiple overlapping shifts
-                '4-7': [ // Thursday 10:30 AM - Meet alone
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-8': [ // Thursday 11:00 AM - Meet alone
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-9': [ // Thursday 11:30 AM - Meet alone
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-10': [ // Thursday 12:00 PM - Meet alone
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-11': [ // Thursday 12:30 PM - Meet alone
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-12': [ // Thursday 1:00 PM - Meet alone
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-14': [ // Thursday 2:00 PM - Both Jasmine and Meet
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'},
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-15': [ // Thursday 2:30 PM - Both
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'},
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-16': [ // Thursday 3:00 PM - Both
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'},
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-17': [ // Thursday 3:30 PM - Both
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'},
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-18': [ // Thursday 4:00 PM - Both
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'},
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-19': [ // Thursday 4:30 PM - Both
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'},
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '4-20': [ // Thursday 5:00 PM - Just Jasmine
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '4-21': [ // Thursday 5:30 PM - Just Jasmine
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '4-22': [ // Thursday 6:00 PM - Just Jasmine
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '4-23': [ // Thursday 6:30 PM - Just Jasmine
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '4-24': [ // Thursday 7:00 PM - Just Jasmine
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '4-25': [ // Thursday 7:30 PM - Just Jasmine
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
                 ]
+            };
+            
+            // Lock some of the sample shifts to demonstrate the feature
+            lockedShifts = {
+                '1-2-1': true, // Lock Zach's Monday morning shift
+                '6-10-2': true // Lock Alyssa's Sunday shift
             };
         }
         
@@ -1649,6 +1699,45 @@
                 item.appendChild(name);
                 legend.appendChild(item);
             });
+        }
+        
+        function updateLockStatus() {
+            const lockStatus = document.getElementById('lockStatus');
+            const lockedCount = Object.keys(lockedShifts).length;
+            
+            document.getElementById('totalLocked').textContent = lockedCount;
+            
+            if (lockedCount > 0) {
+                lockStatus.style.display = 'flex';
+            } else {
+                lockStatus.style.display = 'none';
+            }
+        }
+        
+        function toggleShiftLock(dayIndex, startTime, workerId) {
+            const lockKey = `${dayIndex}-${startTime}-${workerId}`;
+            
+            if (lockedShifts[lockKey]) {
+                delete lockedShifts[lockKey];
+            } else {
+                lockedShifts[lockKey] = true;
+            }
+            
+            renderSchedule();
+            updateLockStatus();
+        }
+        
+        function unlockAllShifts() {
+            if (confirm('Unlock all shifts? This will allow auto-schedule to modify any shift.')) {
+                lockedShifts = {};
+                renderSchedule();
+                updateLockStatus();
+            }
+        }
+        
+        function isShiftLocked(dayIndex, startTime, workerId) {
+            const lockKey = `${dayIndex}-${startTime}-${workerId}`;
+            return lockedShifts[lockKey] === true;
         }
         
         function initializeGrid() {
@@ -1799,7 +1888,18 @@
         }
         
         function deleteWorker(id) {
-            if (confirm('Are you sure you want to delete this worker?')) {
+            // Check if worker has any locked shifts
+            const hasLockedShifts = Object.keys(lockedShifts).some(key => {
+                const [day, time, wId] = key.split('-').map(Number);
+                return wId === id;
+            });
+            
+            let confirmMessage = 'Are you sure you want to delete this worker?';
+            if (hasLockedShifts) {
+                confirmMessage = 'This worker has locked shifts. Deleting the worker will remove all their shifts including locked ones.\n\nAre you sure you want to delete this worker?';
+            }
+            
+            if (confirm(confirmMessage)) {
                 workers = workers.filter(w => w.id !== id);
                 // Remove from schedule
                 Object.keys(schedule).forEach(key => {
@@ -1814,10 +1914,18 @@
                         delete manualBreaks[key];
                     }
                 });
+                // Remove locks for this worker
+                Object.keys(lockedShifts).forEach(key => {
+                    const [day, time, wId] = key.split('-').map(Number);
+                    if (wId === id) {
+                        delete lockedShifts[key];
+                    }
+                });
                 renderWorkers();
                 renderSchedule();
                 updateStats();
                 updateLegend();
+                updateLockStatus();
             }
         }
         
@@ -1977,6 +2085,16 @@
         }
         
         function removeShiftRange(dayIndex, startTime, endTime, workerId) {
+            // Check if any of the shifts in the range are locked
+            for (let i = startTime; i <= endTime; i++) {
+                const lockKey = `${dayIndex}-${i}-${workerId}`;
+                if (lockedShifts[lockKey]) {
+                    alert('Cannot remove this shift range because it contains locked shifts. Please unlock them first.');
+                    return;
+                }
+            }
+            
+            // If no locked shifts, proceed with removal
             for (let i = startTime; i <= endTime; i++) {
                 const key = `${dayIndex}-${i}`;
                 if (schedule[key]) {
@@ -1988,6 +2106,7 @@
             }
             renderSchedule();
             updateStats();
+            updateLockStatus();
         }
         
         function renderSchedule() {
@@ -2148,6 +2267,29 @@
                 block.className = 'shift-block';
                 block.style.backgroundColor = shift.color;
                 
+                // Check if this shift is locked
+                const isLocked = isShiftLocked(shift.dayIndex, shift.startTime, shift.workerId);
+                if (isLocked) {
+                    block.classList.add('locked');
+                }
+                
+                // Add lock button
+                const lockBtn = document.createElement('div');
+                lockBtn.className = 'lock-btn';
+                if (isLocked) {
+                    lockBtn.classList.add('locked');
+                    lockBtn.innerHTML = '🔒';
+                    lockBtn.title = 'Unlock shift (allow editing/deletion)';
+                } else {
+                    lockBtn.innerHTML = '🔓';
+                    lockBtn.title = 'Lock shift (prevent editing/deletion)';
+                }
+                lockBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleShiftLock(shift.dayIndex, shift.startTime, shift.workerId);
+                };
+                block.appendChild(lockBtn);
+                
                 // Get worker details
                 const workerTypeLabel = {
                     fullTime: 'Full Time',
@@ -2284,17 +2426,26 @@
                     block.style.left = '2px';
                 }
                 
-                block.innerHTML = blockContent;
+                // Insert content before lock button
+                const contentDiv = document.createElement('div');
+                contentDiv.innerHTML = blockContent;
+                block.insertBefore(contentDiv, lockBtn);
                 
-                // Add resize handle
-                const resizeHandle = document.createElement('div');
-                resizeHandle.className = 'resize-handle';
-                resizeHandle.onmousedown = (e) => startResize(e, shift.dayIndex, shift.startTime, shift.workerId, shift.hours);
-                block.appendChild(resizeHandle);
+                // Add resize handle (only if not locked)
+                if (!isLocked) {
+                    const resizeHandle = document.createElement('div');
+                    resizeHandle.className = 'resize-handle';
+                    resizeHandle.onmousedown = (e) => startResize(e, shift.dayIndex, shift.startTime, shift.workerId, shift.hours);
+                    block.appendChild(resizeHandle);
+                }
                 
                 // Add drag and click handlers
-                block.draggable = true;
+                block.draggable = !isLocked; // Prevent dragging if locked
                 block.ondragstart = (e) => {
+                    if (isLocked) {
+                        e.preventDefault();
+                        return;
+                    }
                     const key = `${shift.dayIndex}-${shift.startTime}`;
                     const shiftData = {
                         workerId: shift.workerId,
@@ -2306,7 +2457,15 @@
                 
                 block.onclick = (e) => {
                     if (e.target.classList.contains('resize-handle')) return;
+                    if (e.target.classList.contains('lock-btn')) return;
                     e.stopPropagation();
+                    
+                    // Check if shift is locked and prevent deletion if it is
+                    if (isLocked) {
+                        alert(`This shift is locked and cannot be deleted.\n\nPlease unlock it first (click the 🔒 icon) if you want to remove ${shift.workerName} from this shift.`);
+                        return;
+                    }
+                    
                     const actualHours = shift.hours * 0.5;
                     const requiresBreak = shift.hours > 12 && workerInfo && workerInfo.type !== 'fullTime'; // More than 6 hours (except full-time)
                     const paidHours = requiresBreak ? actualHours - 0.5 : actualHours;
@@ -2318,7 +2477,9 @@
                         hoursText = `${actualHours % 1 === 0 ? actualHours : actualHours.toFixed(1)} hour${actualHours !== 1 ? 's' : ''}`;
                     }
                     
-                    if (confirm(`Remove ${shift.workerName} from this${hoursText ? ' ' + hoursText : ''} shift?`)) {
+                    const confirmMessage = `Remove ${shift.workerName} from this${hoursText ? ' ' + hoursText : ''} shift?`;
+                    
+                    if (confirm(confirmMessage)) {
                         // Remove entire shift range
                         for (let i = shift.startTime; i <= shift.endTime; i++) {
                             const removeKey = `${shift.dayIndex}-${i}`;
@@ -2331,6 +2492,7 @@
                         }
                         renderSchedule();
                         updateStats();
+                        updateLockStatus();
                     }
                 };
                 
@@ -2437,37 +2599,116 @@
         }
         
         function clearSchedule() {
-            if (confirm('Clear all shifts from the schedule?')) {
-                schedule = {};
-                renderSchedule();
-                updateStats();
+            const hasLockedShifts = Object.keys(lockedShifts).length > 0;
+            
+            let message = 'Clear all shifts from the schedule?';
+            if (hasLockedShifts) {
+                message = 'Clear all shifts from the schedule?\n\nYou have ' + Object.keys(lockedShifts).length + ' locked shifts.\n\nChoose:\n• OK = Clear all (including locked)\n• Cancel = Keep everything';
+                
+                if (confirm(message)) {
+                    if (confirm('Do you want to preserve locked shifts? OK = Yes, Cancel = No')) {
+                        // Preserve locked shifts
+                        const preservedShifts = {};
+                        
+                        Object.keys(schedule).forEach(key => {
+                            const [dayIndex, timeIndex] = key.split('-').map(Number);
+                            const shifts = schedule[key];
+                            
+                            shifts.forEach(shift => {
+                                const lockKey = `${dayIndex}-${timeIndex}-${shift.workerId}`;
+                                if (lockedShifts[lockKey]) {
+                                    if (!preservedShifts[key]) {
+                                        preservedShifts[key] = [];
+                                    }
+                                    preservedShifts[key].push(shift);
+                                }
+                            });
+                        });
+                        
+                        schedule = preservedShifts;
+                    } else {
+                        // Clear everything including locks
+                        schedule = {};
+                        lockedShifts = {};
+                    }
+                }
+            } else {
+                if (confirm(message)) {
+                    schedule = {};
+                }
             }
+            
+            renderSchedule();
+            updateStats();
+            updateLockStatus();
         }
         
         function clearAllData() {
-            if (confirm('This will delete all workers, shifts, and manual breaks. Are you sure?')) {
+            const hasLockedShifts = Object.keys(lockedShifts).length > 0;
+            let message = 'This will delete all workers, shifts, and manual breaks. Are you sure?';
+            
+            if (hasLockedShifts) {
+                message = 'This will delete all workers, shifts, and manual breaks.\n\n⚠️ You have ' + Object.keys(lockedShifts).length + ' locked shifts that will also be deleted.\n\nAre you sure?';
+            }
+            
+            if (confirm(message)) {
                 workers = [];
                 schedule = {};
                 manualBreaks = {};
+                lockedShifts = {};
                 selectedWorker = null;
                 renderWorkers();
                 renderSchedule();
                 updateStats();
                 updateLegend();
+                updateLockStatus();
             }
         }
         
         function autoSchedule() {
-            if (!confirm('This will create an automatic schedule based on worker availability. Continue?')) {
+            if (!confirm('This will create an automatic schedule based on worker availability. Locked shifts will be preserved. Continue?')) {
                 return;
             }
             
+            // Preserve locked shifts
+            const preservedShifts = {};
+            
+            // First, identify and preserve all locked shifts
+            Object.keys(schedule).forEach(key => {
+                const [dayIndex, timeIndex] = key.split('-').map(Number);
+                const shifts = schedule[key];
+                
+                shifts.forEach(shift => {
+                    const lockKey = `${dayIndex}-${timeIndex}-${shift.workerId}`;
+                    if (lockedShifts[lockKey]) {
+                        if (!preservedShifts[key]) {
+                            preservedShifts[key] = [];
+                        }
+                        preservedShifts[key].push(shift);
+                    }
+                });
+            });
+            
+            // Clear schedule but keep preserved shifts
             schedule = {};
             
-            // Simple auto-scheduling algorithm
+            // Restore preserved shifts
+            Object.keys(preservedShifts).forEach(key => {
+                schedule[key] = preservedShifts[key];
+            });
+            
+            // Simple auto-scheduling algorithm (modified to check for existing locked shifts)
             workers.forEach(worker => {
                 let hoursScheduled = 0;
                 const maxHours = worker.maxHours;
+                
+                // Count hours already scheduled for locked shifts
+                Object.keys(schedule).forEach(key => {
+                    const shifts = schedule[key];
+                    if (shifts.some(s => s.workerId === worker.id)) {
+                        hoursScheduled++;
+                    }
+                });
                 
                 days.forEach((day, dayIndex) => {
                     if (hoursScheduled >= maxHours * 2) return; // Convert to slots
@@ -2475,7 +2716,7 @@
                     const availability = worker.availability[day];
                     if (!availability) return;
                     
-                    // Parse availability (enhanced version for half-hour slots)
+                    // Parse availability
                     const parts = availability.split('-');
                     if (parts.length !== 2) return;
                     
@@ -2486,18 +2727,25 @@
                         if (hoursScheduled >= maxHours * 2) break; // Convert to slots
                         
                         const key = `${dayIndex}-${timeIndex}`;
-                        if (!schedule[key]) {
-                            schedule[key] = [];
-                        }
                         
-                        // Check if worker already scheduled at this time
-                        if (!schedule[key].find(s => s.workerId === worker.id)) {
-                            schedule[key].push({
-                                workerId: worker.id,
-                                workerName: worker.name,
-                                color: worker.color
-                            });
-                            hoursScheduled++;
+                        // Check if this slot has a locked shift for this worker
+                        const lockKey = `${dayIndex}-${timeIndex}-${worker.id}`;
+                        const hasLockedShift = schedule[key] && schedule[key].some(s => s.workerId === worker.id);
+                        
+                        if (!hasLockedShift) {
+                            if (!schedule[key]) {
+                                schedule[key] = [];
+                            }
+                            
+                            // Check if worker already scheduled at this time
+                            if (!schedule[key].find(s => s.workerId === worker.id)) {
+                                schedule[key].push({
+                                    workerId: worker.id,
+                                    workerName: worker.name,
+                                    color: worker.color
+                                });
+                                hoursScheduled++;
+                            }
                         }
                     }
                 });
@@ -2821,110 +3069,14 @@
             document.getElementById('partTimeHours').textContent = partTimeHours % 1 === 0 ? partTimeHours : partTimeHours.toFixed(1);
             document.getElementById('coopHours').textContent = coopHours % 1 === 0 ? coopHours : coopHours.toFixed(1);
             document.getElementById('totalBreaks').textContent = totalBreaks;
+            
+            // Update locked shifts count
+            const lockedCount = Object.keys(lockedShifts).length;
+            document.getElementById('totalLocked').textContent = lockedCount;
         }
         
         function exportSchedule() {
-            let csv = 'Day,Time,Worker,Type,Hours,Paid Hours,Break Required\n';
-            
-            // Group shifts by worker and day to calculate breaks
-            const workerDayShifts = {};
-            
-            Object.keys(schedule).forEach(key => {
-                const shifts = schedule[key];
-                if (!shifts || shifts.length === 0) return;
-                
-                const [dayIndex, timeIndex] = key.split('-').map(Number);
-                
-                shifts.forEach(shift => {
-                    const workerDayKey = `${shift.workerId}-${dayIndex}`;
-                    if (!workerDayShifts[workerDayKey]) {
-                        workerDayShifts[workerDayKey] = {
-                            workerId: shift.workerId,
-                            workerName: shift.workerName,
-                            dayIndex: dayIndex,
-                            timeSlots: new Set()
-                        };
-                    }
-                    workerDayShifts[workerDayKey].timeSlots.add(timeIndex);
-                });
-            });
-            
-            // Calculate shift blocks with break info
-            const exportShifts = [];
-            Object.values(workerDayShifts).forEach(workerDay => {
-                // Check if this worker's category is visible
-                const worker = workers.find(w => w.id === workerDay.workerId);
-                if (!worker || !categoryVisibility[worker.type]) {
-                    return; // Skip exporting shifts from hidden categories
-                }
-                
-                const timeSlots = Array.from(workerDay.timeSlots).sort((a, b) => a - b);
-                
-                if (timeSlots.length === 0) return;
-                
-                let currentStart = timeSlots[0];
-                let currentEnd = timeSlots[0];
-                
-                for (let i = 1; i < timeSlots.length; i++) {
-                    if (timeSlots[i] === currentEnd + 1) {
-                        currentEnd = timeSlots[i];
-                    } else {
-                        const rangeHours = currentEnd - currentStart + 1;
-                        const actualHours = rangeHours * 0.5;
-                        const requiresBreak = rangeHours > 12 && worker && worker.type !== 'fullTime';
-                        const paidHours = requiresBreak ? actualHours - 0.5 : actualHours;
-                        
-                        exportShifts.push({
-                            dayIndex: workerDay.dayIndex,
-                            startTime: currentStart,
-                            endTime: currentEnd,
-                            workerId: workerDay.workerId,
-                            workerName: workerDay.workerName,
-                            actualHours: actualHours,
-                            paidHours: paidHours,
-                            requiresBreak: requiresBreak,
-                            worker: worker
-                        });
-                        
-                        currentStart = timeSlots[i];
-                        currentEnd = timeSlots[i];
-                    }
-                }
-                
-                // Handle last range
-                const rangeHours = currentEnd - currentStart + 1;
-                const actualHours = rangeHours * 0.5;
-                const requiresBreak = rangeHours > 12 && worker && worker.type !== 'fullTime';
-                const paidHours = requiresBreak ? actualHours - 0.5 : actualHours;
-                
-                exportShifts.push({
-                    dayIndex: workerDay.dayIndex,
-                    startTime: currentStart,
-                    endTime: currentEnd,
-                    workerId: workerDay.workerId,
-                    workerName: workerDay.workerName,
-                    actualHours: actualHours,
-                    paidHours: paidHours,
-                    requiresBreak: requiresBreak,
-                    worker: worker
-                });
-            });
-            
-            // Export each shift block
-            exportShifts.forEach(shift => {
-                const endTimeDisplay = shift.endTime + 1 < times.length ? times[shift.endTime + 1] : times[shift.endTime];
-                const timeRange = `${times[shift.startTime]} - ${endTimeDisplay}`;
-                csv += `${days[shift.dayIndex]},"${timeRange}",${shift.workerName},${shift.worker ? shift.worker.type : 'Unknown'},${shift.actualHours},${shift.paidHours},${shift.requiresBreak ? 'Yes' : 'No'}\n`;
-            });
-            
-            // Download CSV
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'schedule.csv';
-            a.click();
-            window.URL.revokeObjectURL(url);
+            // This function is replaced by the export button event listener below
         }
         
         function openManualBreakModal() {
@@ -3017,12 +3169,14 @@
                 workers: workers,
                 schedule: schedule,
                 manualBreaks: manualBreaks,
+                lockedShifts: lockedShifts,
                 categoryVisibility: categoryVisibility,
                 selectedWorkerId: selectedWorker ? selectedWorker.id : null,
                 metadata: {
                     totalWorkers: workers.length,
                     totalShifts: Object.keys(schedule).length,
                     totalManualBreaks: Object.keys(manualBreaks).length,
+                    totalLockedShifts: Object.keys(lockedShifts).length,
                     exportedBy: 'Student Worker Schedule Board'
                 }
             };
@@ -3080,7 +3234,8 @@
                     const displayTitle = (state.semester || state.versionDate) ? `${semesterInfo}${versionInfo}` : ' (No title set)';
                     const confirmMsg = `Load schedule state from ${loadTime}${displayTitle}?\n\n` +
                                      `Workers: ${state.metadata?.totalWorkers || state.workers.length}\n` +
-                                     `Shifts: ${state.metadata?.totalShifts || Object.keys(state.schedule).length}\n\n` +
+                                     `Shifts: ${state.metadata?.totalShifts || Object.keys(state.schedule).length}\n` +
+                                     `Locked Shifts: ${state.metadata?.totalLockedShifts || 0}\n\n` +
                                      `This will replace your current work.`;
                     
                     if (!confirm(confirmMsg)) return;
@@ -3089,6 +3244,7 @@
                     workers = state.workers || [];
                     schedule = state.schedule || {};
                     manualBreaks = state.manualBreaks || {};
+                    lockedShifts = state.lockedShifts || {};
                     categoryVisibility = state.categoryVisibility || {
                         fullTime: true,
                         coop: true,
@@ -3128,6 +3284,7 @@
                     updateStats();
                     updateDate();
                     updateLegend();
+                    updateLockStatus();
                     
                     // Show success message
                     const originalText = document.getElementById('loadStateBtn').textContent;
@@ -3494,6 +3651,7 @@
             window.closeManualBreakModal = closeManualBreakModal;
             window.addManualBreak = addManualBreak;
             window.updateMaxHours = updateMaxHours;
+            window.unlockAllShifts = unlockAllShifts;
             
             window.listenersAdded = true;
             console.log('Event listeners added successfully');
