@@ -87,7 +87,7 @@
             color: white;
         }
         
-        .btn-start-secondary.hover {
+        .btn-start-secondary:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
         }
@@ -1444,14 +1444,14 @@
         }
 
         function loadSampleData() {
-            // Initialize with sample data from the working version
+            // Initialize with sample data - CORRECTED for Sunday-first week
             workers = [
                 {
                     id: 1,
                     name: 'Zach',
                     type: 'fullTime',
                     color: '#f4d03f',
-                    maxHours: 40, // Full-time default
+                    maxHours: 40,
                     availability: {
                         Sunday: '',
                         Monday: '8:00 AM-5:00 PM',
@@ -1467,7 +1467,7 @@
                     name: 'Alyssa',
                     type: 'partTime',
                     color: '#85c1e2',
-                    maxHours: 20, // Part-time default
+                    maxHours: 20,
                     availability: {
                         Sunday: '12:00 PM-6:00 PM',
                         Monday: '',
@@ -1483,7 +1483,7 @@
                     name: 'Jasmine',
                     type: 'workStudy',
                     color: '#ec7063',
-                    maxHours: 20, // Work study default
+                    maxHours: 20,
                     availability: {
                         Sunday: '',
                         Monday: '12:30 PM-5:00 PM',
@@ -1499,7 +1499,7 @@
                     name: 'Meet',
                     type: 'partTime',
                     color: '#ff9966',
-                    maxHours: 20, // Part-time default
+                    maxHours: 20,
                     availability: {
                         Sunday: '',
                         Monday: '5:00 PM-8:00 PM',
@@ -1512,145 +1512,63 @@
                 }
             ];
             
-            // Add some sample shifts to demonstrate features
+            // Add sample shifts with CORRECTED day indices (Sunday=0, Monday=1, etc.)
             schedule = {
-                // Sunday - Alyssa works 12PM-6PM (continuous)
-                '0-10': [ // Sunday 12:00 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-11': [ // Sunday 12:30 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-12': [ // Sunday 1:00 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-13': [ // Sunday 1:30 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-14': [ // Sunday 2:00 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-15': [ // Sunday 2:30 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-16': [ // Sunday 3:00 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-17': [ // Sunday 3:30 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-18': [ // Sunday 4:00 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-19': [ // Sunday 4:30 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-20': [ // Sunday 5:00 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '0-21': [ // Sunday 5:30 PM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
+                // Sunday (0) - Alyssa works 12PM-6PM
+                '0-10': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 12:00 PM
+                '0-11': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 12:30 PM
+                '0-12': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 1:00 PM
+                '0-13': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 1:30 PM
+                '0-14': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 2:00 PM
+                '0-15': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 2:30 PM
+                '0-16': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 3:00 PM
+                '0-17': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 3:30 PM
+                '0-18': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 4:00 PM
+                '0-19': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 4:30 PM
+                '0-20': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 5:00 PM
+                '0-21': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 5:30 PM
                 
-                // Monday - Overlapping shifts
-                '1-2': [ // Monday 8:00 AM
-                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
-                ],
-                '1-3': [ // Monday 8:30 AM
-                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
-                ],
-                '1-4': [ // Monday 9:00 AM
-                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
-                ],
-                '1-5': [ // Monday 9:30 AM
-                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
-                ],
-                '1-6': [ // Monday 10:00 AM
-                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
-                ],
-                '1-7': [ // Monday 10:30 AM
-                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
-                ],
-                '1-8': [ // Monday 11:00 AM
-                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
-                ],
-                '1-9': [ // Monday 11:30 AM
-                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
-                ],
-                '1-10': [ // Monday 12:00 PM - Both Zach and Jasmine
+                // Monday (1) - Overlapping shifts
+                '1-2': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 8:00 AM
+                '1-3': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 8:30 AM
+                '1-4': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 9:00 AM
+                '1-5': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 9:30 AM
+                '1-6': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 10:00 AM
+                '1-7': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 10:30 AM
+                '1-8': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 11:00 AM
+                '1-9': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 11:30 AM
+                '1-10': [ // 12:00 PM - Both Zach and Jasmine
                     {workerId: 1, workerName: 'Zach', color: '#f4d03f'},
                     {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
                 ],
-                '1-11': [ // Monday 12:30 PM - Just Jasmine
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '1-12': [ // Monday 1:00 PM
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '1-13': [ // Monday 1:30 PM
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '1-14': [ // Monday 2:00 PM
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '1-15': [ // Monday 2:30 PM
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '1-16': [ // Monday 3:00 PM
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '1-17': [ // Monday 3:30 PM
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '1-18': [ // Monday 4:00 PM
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
-                '1-19': [ // Monday 4:30 PM
-                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
-                ],
+                '1-11': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 12:30 PM
+                '1-12': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 1:00 PM
+                '1-13': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 1:30 PM
+                '1-14': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 2:00 PM
+                '1-15': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 2:30 PM
+                '1-16': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 3:00 PM
+                '1-17': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 3:30 PM
+                '1-18': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 4:00 PM
+                '1-19': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 4:30 PM
                 
-                // Tuesday - Alyssa morning shift
-                '2-4': [ // Tuesday 9:00 AM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '2-5': [ // Tuesday 9:30 AM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '2-6': [ // Tuesday 10:00 AM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '2-7': [ // Tuesday 10:30 AM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '2-8': [ // Tuesday 11:00 AM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
-                '2-9': [ // Tuesday 11:30 AM
-                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
-                ],
+                // Tuesday (2) - Alyssa morning shift
+                '2-4': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 9:00 AM
+                '2-5': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 9:30 AM
+                '2-6': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 10:00 AM
+                '2-7': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 10:30 AM
+                '2-8': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 11:00 AM
+                '2-9': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 11:30 AM
                 
-                // Saturday - Meet works 12PM-3PM (continuous)
-                '6-10': [ // Saturday 12:00 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '6-11': [ // Saturday 12:30 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '6-12': [ // Saturday 1:00 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '6-13': [ // Saturday 1:30 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '6-14': [ // Saturday 2:00 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '6-15': [ // Saturday 2:30 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ]
+                // Saturday (6) - Meet works 12PM-3PM
+                '6-10': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 12:00 PM
+                '6-11': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 12:30 PM
+                '6-12': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 1:00 PM
+                '6-13': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 1:30 PM
+                '6-14': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 2:00 PM
+                '6-15': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}]  // 2:30 PM
             };
             
-            // Lock some of the sample shifts to demonstrate the feature
+            // Lock some sample shifts (with corrected day indices)
             lockedShifts = {
                 '1-2-1': true, // Lock Zach's Monday morning shift
                 '0-10-2': true // Lock Alyssa's Sunday shift
@@ -1749,7 +1667,7 @@
             corner.className = 'time-header';
             grid.appendChild(corner);
             
-            // Day headers
+            // Day headers - CORRECTED ORDER
             days.forEach(day => {
                 const dayHeader = document.createElement('div');
                 dayHeader.className = 'day-header';
@@ -2327,7 +2245,7 @@
                     // Check if break is required
                     let requiresBreak = false;
                     
-                    // Weekend full-day rule: Saturday (6) or Sunday (0), 12PM-6PM (slots 10-21)
+                    // Weekend full-day rule: Sunday (0) or Saturday (6), 12PM-6PM (slots 10-21)
                     const isWeekend = shift.dayIndex === 0 || shift.dayIndex === 6;
                     const isFullWeekendShift = isWeekend && shift.startTime === 10 && shift.endTime === 21; // 12PM-6PM
                     
@@ -2841,7 +2759,7 @@
             });
             
             // Reset form
-            document.getElementById('shiftDay').value = '1'; // Default to Monday
+            document.getElementById('shiftDay').value = '1'; // Default to Monday (1)
             document.getElementById('shiftStartTime').value = '09:00';
             document.getElementById('shiftEndTime').value = '17:00';
             document.getElementById('customTimeRange').value = '';
@@ -3093,7 +3011,7 @@
             });
             
             // Reset form
-            document.getElementById('breakDay').value = '1'; // Default to Monday
+            document.getElementById('breakDay').value = '1'; // Default to Monday (1)
             document.getElementById('breakDuration').value = '30';
             document.getElementById('breakType').value = 'unpaid';
             document.getElementById('breakNotes').value = '';
@@ -3341,13 +3259,13 @@
                         type: worker.type,
                         color: worker.color,
                         schedule: {
+                            Sunday: [],
                             Monday: [],
                             Tuesday: [],
                             Wednesday: [], 
                             Thursday: [],
                             Friday: [],
-                            Saturday: [],
-                            Sunday: []
+                            Saturday: []
                         }
                     };
                 });
@@ -3400,8 +3318,8 @@
                             // Check if break required
                             let requiresBreak = false;
                             
-                            // Weekend full-day rule: 12PM-6PM (index 10-21) gets break regardless of worker type
-                            const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6; // Saturday or Sunday
+                            // Weekend full-day rule: Sunday (0) or Saturday (6), 12PM-6PM (index 10-21)
+                            const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6;
                             const isFullWeekendShift = isWeekend && currentStart === 10 && currentEnd === 21; // 12PM-6PM
                             
                             if (isFullWeekendShift) {
@@ -3458,8 +3376,8 @@
                     // Check if break required
                     let requiresBreak = false;
                     
-                    // Weekend full-day rule: Saturday (6) or Sunday (0), 12PM-6PM (index 10-21) gets break regardless of worker type
-                    const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6; // Saturday or Sunday
+                    // Weekend full-day rule: Sunday (0) or Saturday (6), 12PM-6PM (index 10-21)
+                    const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6;
                     const isFullWeekendShift = isWeekend && currentStart === 10 && currentEnd === 21; // 12PM-6PM
                     
                     if (isFullWeekendShift) {
@@ -3594,7 +3512,7 @@
                     // Calculate total hours for this worker
                     let totalWeeklyHours = 0;
                     
-                    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
+                    ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].forEach(day => {
                         const dayShifts = worker.schedule[day];
                         textOutput += `• ${day}: `;
                         
