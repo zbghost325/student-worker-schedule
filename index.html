@@ -1094,7 +1094,7 @@
                     💡 Select worker, then click grid to add shifts<br>
                     🔄 Drag workers between categories<br>
                     📏 Drag bottom edge to resize shifts<br>
-                    ⏰ Manual Entry for custom times<br>
+                    ⌚ Manual Entry for custom times<br>
                     ☕ Over 6 hour student shifts include 30min unpaid break<br>
                     💾 Custom filename: Edit semester/version for save names<br>
                     📄 Generate shows formatted schedules you can copy<br>
@@ -1238,22 +1238,22 @@
                 <label>Availability (e.g., 9:00 AM-5:00 PM or leave blank if not available):</label>
                 <div class="availability-grid">
                     <div class="availability-header">Day</div>
-                    <div class="availability-header">Saturday</div>
+                    <div class="availability-header">Sunday</div>
                     <div class="availability-header">Monday</div>
                     <div class="availability-header">Tuesday</div>
                     <div class="availability-header">Wednesday</div>
                     <div class="availability-header">Thursday</div>
                     <div class="availability-header">Friday</div>
-                    <div class="availability-header">Sunday</div>
+                    <div class="availability-header">Saturday</div>
                     
                     <div class="availability-header">Available</div>
-                    <div class="availability-input"><input type="text" id="availSat" placeholder="9:00 AM-5:00 PM"></div>
+                    <div class="availability-input"><input type="text" id="availSun" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availMon" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availTue" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availWed" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availThu" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availFri" placeholder="9:00 AM-5:00 PM"></div>
-                    <div class="availability-input"><input type="text" id="availSun" placeholder="9:00 AM-5:00 PM"></div>
+                    <div class="availability-input"><input type="text" id="availSat" placeholder="9:00 AM-5:00 PM"></div>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1276,13 +1276,13 @@
             <div class="form-group">
                 <label>Day:</label>
                 <select id="shiftDay">
-                    <option value="0">Saturday</option>
+                    <option value="0">Sunday</option>
                     <option value="1">Monday</option>
                     <option value="2">Tuesday</option>
                     <option value="3">Wednesday</option>
                     <option value="4">Thursday</option>
                     <option value="5">Friday</option>
-                    <option value="6">Sunday</option>
+                    <option value="6">Saturday</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1317,13 +1317,13 @@
             <div class="form-group">
                 <label>Day:</label>
                 <select id="breakDay">
-                    <option value="0">Saturday</option>
+                    <option value="0">Sunday</option>
                     <option value="1">Monday</option>
                     <option value="2">Tuesday</option>
                     <option value="3">Wednesday</option>
                     <option value="4">Thursday</option>
                     <option value="5">Friday</option>
-                    <option value="6">Sunday</option>
+                    <option value="6">Saturday</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1369,8 +1369,8 @@
             workStudy: true
         };
         
-        // Days and times - Saturday first, Sunday last with half-hour increments
-        const days = ['Saturday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sunday'];
+        // Days and times - Sunday through Saturday with half-hour increments
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const times = [
             '7:00 AM', '7:30 AM', '8:00 AM', '8:30 AM', '9:00 AM', '9:30 AM', 
             '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM',
@@ -1453,13 +1453,13 @@
                     color: '#f4d03f',
                     maxHours: 40, // Full-time default
                     availability: {
-                        Saturday: '',
+                        Sunday: '',
                         Monday: '8:00 AM-5:00 PM',
                         Tuesday: '8:00 AM-5:00 PM',
                         Wednesday: '8:00 AM-5:00 PM',
                         Thursday: '8:00 AM-5:00 PM',
                         Friday: '8:00 AM-5:00 PM',
-                        Sunday: ''
+                        Saturday: ''
                     }
                 },
                 {
@@ -1469,13 +1469,13 @@
                     color: '#85c1e2',
                     maxHours: 20, // Part-time default
                     availability: {
-                        Saturday: '',
+                        Sunday: '12:00 PM-6:00 PM',
                         Monday: '',
                         Tuesday: '9:00 AM-4:00 PM',
                         Wednesday: '9:00 AM-1:00 PM',
                         Thursday: '',
                         Friday: '10:30 AM-2:30 PM',
-                        Sunday: '12:00 PM-6:00 PM'
+                        Saturday: ''
                     }
                 },
                 {
@@ -1485,13 +1485,13 @@
                     color: '#ec7063',
                     maxHours: 20, // Work study default
                     availability: {
-                        Saturday: '',
+                        Sunday: '',
                         Monday: '12:30 PM-5:00 PM',
                         Tuesday: '',
                         Wednesday: '1:00 PM-5:30 PM',
                         Thursday: '2:00 PM-8:00 PM',
                         Friday: '3:00 PM-8:00 PM',
-                        Sunday: ''
+                        Saturday: ''
                     }
                 },
                 {
@@ -1501,74 +1501,54 @@
                     color: '#ff9966',
                     maxHours: 20, // Part-time default
                     availability: {
-                        Saturday: '12:00 PM-6:00 PM',
+                        Sunday: '',
                         Monday: '5:00 PM-8:00 PM',
                         Tuesday: '3:30 PM-8:00 PM',
                         Wednesday: '5:00 PM-8:00 PM',
                         Thursday: '10:30 AM-2:30 PM',
                         Friday: '',
-                        Sunday: ''
+                        Saturday: '12:00 PM-6:00 PM'
                     }
                 }
             ];
             
             // Add some sample shifts to demonstrate features
             schedule = {
-                // Saturday - Meet works 12PM-3PM (continuous)
-                '0-10': [ // Saturday 12:00 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '0-11': [ // Saturday 12:30 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '0-12': [ // Saturday 1:00 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '0-13': [ // Saturday 1:30 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '0-14': [ // Saturday 2:00 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                '0-15': [ // Saturday 2:30 PM
-                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
-                ],
-                
                 // Sunday - Alyssa works 12PM-6PM (continuous)
-                '6-10': [ // Sunday 12:00 PM
+                '0-10': [ // Sunday 12:00 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-11': [ // Sunday 12:30 PM
+                '0-11': [ // Sunday 12:30 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-12': [ // Sunday 1:00 PM
+                '0-12': [ // Sunday 1:00 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-13': [ // Sunday 1:30 PM
+                '0-13': [ // Sunday 1:30 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-14': [ // Sunday 2:00 PM
+                '0-14': [ // Sunday 2:00 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-15': [ // Sunday 2:30 PM
+                '0-15': [ // Sunday 2:30 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-16': [ // Sunday 3:00 PM
+                '0-16': [ // Sunday 3:00 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-17': [ // Sunday 3:30 PM
+                '0-17': [ // Sunday 3:30 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-18': [ // Sunday 4:00 PM
+                '0-18': [ // Sunday 4:00 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-19': [ // Sunday 4:30 PM
+                '0-19': [ // Sunday 4:30 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-20': [ // Sunday 5:00 PM
+                '0-20': [ // Sunday 5:00 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
-                '6-21': [ // Sunday 5:30 PM
+                '0-21': [ // Sunday 5:30 PM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
                 ],
                 
@@ -1647,13 +1627,33 @@
                 ],
                 '2-9': [ // Tuesday 11:30 AM
                     {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                
+                // Saturday - Meet works 12PM-3PM (continuous)
+                '6-10': [ // Saturday 12:00 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '6-11': [ // Saturday 12:30 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '6-12': [ // Saturday 1:00 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '6-13': [ // Saturday 1:30 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '6-14': [ // Saturday 2:00 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '6-15': [ // Saturday 2:30 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
                 ]
             };
             
             // Lock some of the sample shifts to demonstrate the feature
             lockedShifts = {
                 '1-2-1': true, // Lock Zach's Monday morning shift
-                '6-10-2': true // Lock Alyssa's Sunday shift
+                '0-10-2': true // Lock Alyssa's Sunday shift
             };
         }
         
@@ -1870,13 +1870,13 @@
                 color: document.getElementById('workerColor').value,
                 maxHours: parseInt(document.getElementById('maxHours').value) || 20,
                 availability: {
-                    Saturday: document.getElementById('availSat').value,
+                    Sunday: document.getElementById('availSun').value,
                     Monday: document.getElementById('availMon').value,
                     Tuesday: document.getElementById('availTue').value,
                     Wednesday: document.getElementById('availWed').value,
                     Thursday: document.getElementById('availThu').value,
                     Friday: document.getElementById('availFri').value,
-                    Sunday: document.getElementById('availSun').value
+                    Saturday: document.getElementById('availSat').value
                 }
             };
             
@@ -2327,7 +2327,7 @@
                     // Check if break is required
                     let requiresBreak = false;
                     
-                    // Weekend full-day rule: Saturday (0) or Sunday (6), 12PM-6PM (slots 10-21)
+                    // Weekend full-day rule: Saturday (6) or Sunday (0), 12PM-6PM (slots 10-21)
                     const isWeekend = shift.dayIndex === 0 || shift.dayIndex === 6;
                     const isFullWeekendShift = isWeekend && shift.startTime === 10 && shift.endTime === 21; // 12PM-6PM
                     
@@ -3458,7 +3458,7 @@
                     // Check if break required
                     let requiresBreak = false;
                     
-                    // Weekend full-day rule: 12PM-6PM (index 10-21) gets break regardless of worker type
+                    // Weekend full-day rule: Saturday (6) or Sunday (0), 12PM-6PM (index 10-21) gets break regardless of worker type
                     const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6; // Saturday or Sunday
                     const isFullWeekendShift = isWeekend && currentStart === 10 && currentEnd === 21; // 12PM-6PM
                     
