@@ -87,7 +87,7 @@
             color: white;
         }
         
-        .btn-start-secondary:hover {
+        .btn-start-secondary.hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
         }
@@ -1094,7 +1094,7 @@
                     💡 Select worker, then click grid to add shifts<br>
                     🔄 Drag workers between categories<br>
                     📏 Drag bottom edge to resize shifts<br>
-                    ⌚ Manual Entry for custom times<br>
+                    ⏰ Manual Entry for custom times<br>
                     ☕ Over 6 hour student shifts include 30min unpaid break<br>
                     💾 Custom filename: Edit semester/version for save names<br>
                     📄 Generate shows formatted schedules you can copy<br>
@@ -1238,22 +1238,22 @@
                 <label>Availability (e.g., 9:00 AM-5:00 PM or leave blank if not available):</label>
                 <div class="availability-grid">
                     <div class="availability-header">Day</div>
-                    <div class="availability-header">Sunday</div>
+                    <div class="availability-header">Saturday</div>
                     <div class="availability-header">Monday</div>
                     <div class="availability-header">Tuesday</div>
                     <div class="availability-header">Wednesday</div>
                     <div class="availability-header">Thursday</div>
                     <div class="availability-header">Friday</div>
-                    <div class="availability-header">Saturday</div>
+                    <div class="availability-header">Sunday</div>
                     
                     <div class="availability-header">Available</div>
-                    <div class="availability-input"><input type="text" id="availSun" placeholder="9:00 AM-5:00 PM"></div>
+                    <div class="availability-input"><input type="text" id="availSat" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availMon" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availTue" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availWed" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availThu" placeholder="9:00 AM-5:00 PM"></div>
                     <div class="availability-input"><input type="text" id="availFri" placeholder="9:00 AM-5:00 PM"></div>
-                    <div class="availability-input"><input type="text" id="availSat" placeholder="9:00 AM-5:00 PM"></div>
+                    <div class="availability-input"><input type="text" id="availSun" placeholder="9:00 AM-5:00 PM"></div>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1276,13 +1276,13 @@
             <div class="form-group">
                 <label>Day:</label>
                 <select id="shiftDay">
-                    <option value="0">Sunday</option>
+                    <option value="0">Saturday</option>
                     <option value="1">Monday</option>
                     <option value="2">Tuesday</option>
                     <option value="3">Wednesday</option>
                     <option value="4">Thursday</option>
                     <option value="5">Friday</option>
-                    <option value="6">Saturday</option>
+                    <option value="6">Sunday</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1317,13 +1317,13 @@
             <div class="form-group">
                 <label>Day:</label>
                 <select id="breakDay">
-                    <option value="0">Sunday</option>
+                    <option value="0">Saturday</option>
                     <option value="1">Monday</option>
                     <option value="2">Tuesday</option>
                     <option value="3">Wednesday</option>
                     <option value="4">Thursday</option>
                     <option value="5">Friday</option>
-                    <option value="6">Saturday</option>
+                    <option value="6">Sunday</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1369,8 +1369,8 @@
             workStudy: true
         };
         
-        // Days and times - Sunday through Saturday with half-hour increments
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        // Days and times - Saturday first, Sunday last with half-hour increments
+        const days = ['Saturday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sunday'];
         const times = [
             '7:00 AM', '7:30 AM', '8:00 AM', '8:30 AM', '9:00 AM', '9:30 AM', 
             '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM',
@@ -1444,22 +1444,22 @@
         }
 
         function loadSampleData() {
-            // Initialize with sample data - CORRECTED for Sunday-first week
+            // Initialize with sample data from the working version
             workers = [
                 {
                     id: 1,
                     name: 'Zach',
                     type: 'fullTime',
                     color: '#f4d03f',
-                    maxHours: 40,
+                    maxHours: 40, // Full-time default
                     availability: {
-                        Sunday: '',
+                        Saturday: '',
                         Monday: '8:00 AM-5:00 PM',
                         Tuesday: '8:00 AM-5:00 PM',
                         Wednesday: '8:00 AM-5:00 PM',
                         Thursday: '8:00 AM-5:00 PM',
                         Friday: '8:00 AM-5:00 PM',
-                        Saturday: ''
+                        Sunday: ''
                     }
                 },
                 {
@@ -1467,15 +1467,15 @@
                     name: 'Alyssa',
                     type: 'partTime',
                     color: '#85c1e2',
-                    maxHours: 20,
+                    maxHours: 20, // Part-time default
                     availability: {
-                        Sunday: '12:00 PM-6:00 PM',
+                        Saturday: '',
                         Monday: '',
                         Tuesday: '9:00 AM-4:00 PM',
                         Wednesday: '9:00 AM-1:00 PM',
                         Thursday: '',
                         Friday: '10:30 AM-2:30 PM',
-                        Saturday: ''
+                        Sunday: '12:00 PM-6:00 PM'
                     }
                 },
                 {
@@ -1483,15 +1483,15 @@
                     name: 'Jasmine',
                     type: 'workStudy',
                     color: '#ec7063',
-                    maxHours: 20,
+                    maxHours: 20, // Work study default
                     availability: {
-                        Sunday: '',
+                        Saturday: '',
                         Monday: '12:30 PM-5:00 PM',
                         Tuesday: '',
                         Wednesday: '1:00 PM-5:30 PM',
                         Thursday: '2:00 PM-8:00 PM',
                         Friday: '3:00 PM-8:00 PM',
-                        Saturday: ''
+                        Sunday: ''
                     }
                 },
                 {
@@ -1499,79 +1499,161 @@
                     name: 'Meet',
                     type: 'partTime',
                     color: '#ff9966',
-                    maxHours: 20,
+                    maxHours: 20, // Part-time default
                     availability: {
-                        Sunday: '',
+                        Saturday: '12:00 PM-6:00 PM',
                         Monday: '5:00 PM-8:00 PM',
                         Tuesday: '3:30 PM-8:00 PM',
                         Wednesday: '5:00 PM-8:00 PM',
                         Thursday: '10:30 AM-2:30 PM',
                         Friday: '',
-                        Saturday: '12:00 PM-6:00 PM'
+                        Sunday: ''
                     }
                 }
             ];
             
-            // Add sample shifts with CORRECTED day indices (Sunday=0, Monday=1, etc.)
+            // Add some sample shifts to demonstrate features
             schedule = {
-                // Sunday (0) - Alyssa works 12PM-6PM
-                '0-10': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 12:00 PM
-                '0-11': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 12:30 PM
-                '0-12': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 1:00 PM
-                '0-13': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 1:30 PM
-                '0-14': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 2:00 PM
-                '0-15': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 2:30 PM
-                '0-16': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 3:00 PM
-                '0-17': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 3:30 PM
-                '0-18': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 4:00 PM
-                '0-19': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 4:30 PM
-                '0-20': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 5:00 PM
-                '0-21': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 5:30 PM
+                // Saturday - Meet works 12PM-3PM (continuous)
+                '0-10': [ // Saturday 12:00 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '0-11': [ // Saturday 12:30 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '0-12': [ // Saturday 1:00 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '0-13': [ // Saturday 1:30 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '0-14': [ // Saturday 2:00 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
+                '0-15': [ // Saturday 2:30 PM
+                    {workerId: 4, workerName: 'Meet', color: '#ff9966'}
+                ],
                 
-                // Monday (1) - Overlapping shifts
-                '1-2': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 8:00 AM
-                '1-3': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 8:30 AM
-                '1-4': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 9:00 AM
-                '1-5': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 9:30 AM
-                '1-6': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 10:00 AM
-                '1-7': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 10:30 AM
-                '1-8': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 11:00 AM
-                '1-9': [{workerId: 1, workerName: 'Zach', color: '#f4d03f'}], // 11:30 AM
-                '1-10': [ // 12:00 PM - Both Zach and Jasmine
+                // Sunday - Alyssa works 12PM-6PM (continuous)
+                '6-10': [ // Sunday 12:00 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-11': [ // Sunday 12:30 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-12': [ // Sunday 1:00 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-13': [ // Sunday 1:30 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-14': [ // Sunday 2:00 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-15': [ // Sunday 2:30 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-16': [ // Sunday 3:00 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-17': [ // Sunday 3:30 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-18': [ // Sunday 4:00 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-19': [ // Sunday 4:30 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-20': [ // Sunday 5:00 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '6-21': [ // Sunday 5:30 PM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                
+                // Monday - Overlapping shifts
+                '1-2': [ // Monday 8:00 AM
+                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
+                ],
+                '1-3': [ // Monday 8:30 AM
+                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
+                ],
+                '1-4': [ // Monday 9:00 AM
+                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
+                ],
+                '1-5': [ // Monday 9:30 AM
+                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
+                ],
+                '1-6': [ // Monday 10:00 AM
+                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
+                ],
+                '1-7': [ // Monday 10:30 AM
+                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
+                ],
+                '1-8': [ // Monday 11:00 AM
+                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
+                ],
+                '1-9': [ // Monday 11:30 AM
+                    {workerId: 1, workerName: 'Zach', color: '#f4d03f'}
+                ],
+                '1-10': [ // Monday 12:00 PM - Both Zach and Jasmine
                     {workerId: 1, workerName: 'Zach', color: '#f4d03f'},
                     {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
                 ],
-                '1-11': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 12:30 PM
-                '1-12': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 1:00 PM
-                '1-13': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 1:30 PM
-                '1-14': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 2:00 PM
-                '1-15': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 2:30 PM
-                '1-16': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 3:00 PM
-                '1-17': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 3:30 PM
-                '1-18': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 4:00 PM
-                '1-19': [{workerId: 3, workerName: 'Jasmine', color: '#ec7063'}], // 4:30 PM
+                '1-11': [ // Monday 12:30 PM - Just Jasmine
+                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
+                ],
+                '1-12': [ // Monday 1:00 PM
+                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
+                ],
+                '1-13': [ // Monday 1:30 PM
+                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
+                ],
+                '1-14': [ // Monday 2:00 PM
+                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
+                ],
+                '1-15': [ // Monday 2:30 PM
+                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
+                ],
+                '1-16': [ // Monday 3:00 PM
+                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
+                ],
+                '1-17': [ // Monday 3:30 PM
+                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
+                ],
+                '1-18': [ // Monday 4:00 PM
+                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
+                ],
+                '1-19': [ // Monday 4:30 PM
+                    {workerId: 3, workerName: 'Jasmine', color: '#ec7063'}
+                ],
                 
-                // Tuesday (2) - Alyssa morning shift
-                '2-4': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 9:00 AM
-                '2-5': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 9:30 AM
-                '2-6': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 10:00 AM
-                '2-7': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 10:30 AM
-                '2-8': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 11:00 AM
-                '2-9': [{workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}], // 11:30 AM
-                
-                // Saturday (6) - Meet works 12PM-3PM
-                '6-10': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 12:00 PM
-                '6-11': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 12:30 PM
-                '6-12': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 1:00 PM
-                '6-13': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 1:30 PM
-                '6-14': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}], // 2:00 PM
-                '6-15': [{workerId: 4, workerName: 'Meet', color: '#ff9966'}]  // 2:30 PM
+                // Tuesday - Alyssa morning shift
+                '2-4': [ // Tuesday 9:00 AM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '2-5': [ // Tuesday 9:30 AM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '2-6': [ // Tuesday 10:00 AM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '2-7': [ // Tuesday 10:30 AM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '2-8': [ // Tuesday 11:00 AM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ],
+                '2-9': [ // Tuesday 11:30 AM
+                    {workerId: 2, workerName: 'Alyssa', color: '#85c1e2'}
+                ]
             };
             
-            // Lock some sample shifts (with corrected day indices)
+            // Lock some of the sample shifts to demonstrate the feature
             lockedShifts = {
                 '1-2-1': true, // Lock Zach's Monday morning shift
-                '0-10-2': true // Lock Alyssa's Sunday shift
+                '6-10-2': true // Lock Alyssa's Sunday shift
             };
         }
         
@@ -1621,8 +1703,50 @@
         
         function updateLockStatus() {
             const lockStatus = document.getElementById('lockStatus');
-            const lockedCount = Object.keys(lockedShifts).length;
             
+            // Count unique locked shift blocks, not individual slots
+            const lockedBlocks = new Set();
+            const processedKeys = new Set();
+            
+            Object.keys(lockedShifts).forEach(lockKey => {
+                if (processedKeys.has(lockKey)) return;
+                
+                const [dayIndex, startTime, workerId] = lockKey.split('-').map(Number);
+                
+                // Find the full extent of this locked shift block
+                let blockStart = startTime;
+                let blockEnd = startTime;
+                
+                // Find start
+                while (blockStart > 0) {
+                    const prevKey = `${dayIndex}-${blockStart - 1}`;
+                    if (schedule[prevKey] && schedule[prevKey].some(s => s.workerId === workerId)) {
+                        blockStart--;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // Find end
+                while (blockEnd < times.length - 1) {
+                    const nextKey = `${dayIndex}-${blockEnd + 1}`;
+                    if (schedule[nextKey] && schedule[nextKey].some(s => s.workerId === workerId)) {
+                        blockEnd++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // Mark all slots in this block as processed
+                for (let t = blockStart; t <= blockEnd; t++) {
+                    processedKeys.add(`${dayIndex}-${t}-${workerId}`);
+                }
+                
+                // Add unique block identifier
+                lockedBlocks.add(`${dayIndex}-${blockStart}-${blockEnd}-${workerId}`);
+            });
+            
+            const lockedCount = lockedBlocks.size;
             document.getElementById('totalLocked').textContent = lockedCount;
             
             if (lockedCount > 0) {
@@ -1633,12 +1757,53 @@
         }
         
         function toggleShiftLock(dayIndex, startTime, workerId) {
-            const lockKey = `${dayIndex}-${startTime}-${workerId}`;
+            // Find the full extent of this shift block
+            let blockStart = startTime;
+            let blockEnd = startTime;
             
-            if (lockedShifts[lockKey]) {
-                delete lockedShifts[lockKey];
+            // Find the actual start of the block (go backwards)
+            while (blockStart > 0) {
+                const prevKey = `${dayIndex}-${blockStart - 1}`;
+                if (schedule[prevKey] && schedule[prevKey].some(s => s.workerId === workerId)) {
+                    blockStart--;
+                } else {
+                    break;
+                }
+            }
+            
+            // Find the end of the block (go forwards)
+            while (blockEnd < times.length - 1) {
+                const nextKey = `${dayIndex}-${blockEnd + 1}`;
+                if (schedule[nextKey] && schedule[nextKey].some(s => s.workerId === workerId)) {
+                    blockEnd++;
+                } else {
+                    break;
+                }
+            }
+            
+            // Check if any part of the block is locked
+            let isBlockLocked = false;
+            for (let t = blockStart; t <= blockEnd; t++) {
+                const lockKey = `${dayIndex}-${t}-${workerId}`;
+                if (lockedShifts[lockKey]) {
+                    isBlockLocked = true;
+                    break;
+                }
+            }
+            
+            // Toggle lock state for the entire block
+            if (isBlockLocked) {
+                // Unlock entire block
+                for (let t = blockStart; t <= blockEnd; t++) {
+                    const lockKey = `${dayIndex}-${t}-${workerId}`;
+                    delete lockedShifts[lockKey];
+                }
             } else {
-                lockedShifts[lockKey] = true;
+                // Lock entire block
+                for (let t = blockStart; t <= blockEnd; t++) {
+                    const lockKey = `${dayIndex}-${t}-${workerId}`;
+                    lockedShifts[lockKey] = true;
+                }
             }
             
             renderSchedule();
@@ -1654,8 +1819,40 @@
         }
         
         function isShiftLocked(dayIndex, startTime, workerId) {
-            const lockKey = `${dayIndex}-${startTime}-${workerId}`;
-            return lockedShifts[lockKey] === true;
+            // Check if any time slot in this shift block is locked
+            // First find the full extent of the shift block
+            let blockStart = startTime;
+            let blockEnd = startTime;
+            
+            // Find the actual start of the block (go backwards)
+            while (blockStart > 0) {
+                const prevKey = `${dayIndex}-${blockStart - 1}`;
+                if (schedule[prevKey] && schedule[prevKey].some(s => s.workerId === workerId)) {
+                    blockStart--;
+                } else {
+                    break;
+                }
+            }
+            
+            // Find the end of the block (go forwards)
+            while (blockEnd < times.length - 1) {
+                const nextKey = `${dayIndex}-${blockEnd + 1}`;
+                if (schedule[nextKey] && schedule[nextKey].some(s => s.workerId === workerId)) {
+                    blockEnd++;
+                } else {
+                    break;
+                }
+            }
+            
+            // Check if any part of the block is locked
+            for (let t = blockStart; t <= blockEnd; t++) {
+                const lockKey = `${dayIndex}-${t}-${workerId}`;
+                if (lockedShifts[lockKey]) {
+                    return true;
+                }
+            }
+            
+            return false;
         }
         
         function initializeGrid() {
@@ -1667,7 +1864,7 @@
             corner.className = 'time-header';
             grid.appendChild(corner);
             
-            // Day headers - CORRECTED ORDER
+            // Day headers
             days.forEach(day => {
                 const dayHeader = document.createElement('div');
                 dayHeader.className = 'day-header';
@@ -1788,13 +1985,13 @@
                 color: document.getElementById('workerColor').value,
                 maxHours: parseInt(document.getElementById('maxHours').value) || 20,
                 availability: {
-                    Sunday: document.getElementById('availSun').value,
+                    Saturday: document.getElementById('availSat').value,
                     Monday: document.getElementById('availMon').value,
                     Tuesday: document.getElementById('availTue').value,
                     Wednesday: document.getElementById('availWed').value,
                     Thursday: document.getElementById('availThu').value,
                     Friday: document.getElementById('availFri').value,
-                    Saturday: document.getElementById('availSat').value
+                    Sunday: document.getElementById('availSun').value
                 }
             };
             
@@ -2003,10 +2200,9 @@
         }
         
         function removeShiftRange(dayIndex, startTime, endTime, workerId) {
-            // Check if any of the shifts in the range are locked
+            // Check if any part of the shift block is locked
             for (let i = startTime; i <= endTime; i++) {
-                const lockKey = `${dayIndex}-${i}-${workerId}`;
-                if (lockedShifts[lockKey]) {
+                if (isShiftLocked(dayIndex, i, workerId)) {
                     alert('Cannot remove this shift range because it contains locked shifts. Please unlock them first.');
                     return;
                 }
@@ -2245,7 +2441,7 @@
                     // Check if break is required
                     let requiresBreak = false;
                     
-                    // Weekend full-day rule: Sunday (0) or Saturday (6), 12PM-6PM (slots 10-21)
+                    // Weekend full-day rule: Saturday (0) or Sunday (6), 12PM-6PM (slots 10-21)
                     const isWeekend = shift.dayIndex === 0 || shift.dayIndex === 6;
                     const isFullWeekendShift = isWeekend && shift.startTime === 10 && shift.endTime === 21; // 12PM-6PM
                     
@@ -2407,6 +2603,12 @@
                                     delete schedule[removeKey];
                                 }
                             }
+                            
+                            // Remove any locks for this slot
+                            const lockKey = `${shift.dayIndex}-${i}-${shift.workerId}`;
+                            if (lockedShifts[lockKey]) {
+                                delete lockedShifts[lockKey];
+                            }
                         }
                         renderSchedule();
                         updateStats();
@@ -2521,24 +2723,40 @@
             
             let message = 'Clear all shifts from the schedule?';
             if (hasLockedShifts) {
-                message = 'Clear all shifts from the schedule?\n\nYou have ' + Object.keys(lockedShifts).length + ' locked shifts.\n\nChoose:\n• OK = Clear all (including locked)\n• Cancel = Keep everything';
+                message = 'Clear all shifts from the schedule?\n\nYou have locked shifts.\n\nChoose:\n• OK = Clear all (including locked)\n• Cancel = Keep everything';
                 
                 if (confirm(message)) {
                     if (confirm('Do you want to preserve locked shifts? OK = Yes, Cancel = No')) {
-                        // Preserve locked shifts
+                        // Preserve complete locked shift blocks
                         const preservedShifts = {};
+                        const processedBlocks = new Set();
                         
-                        Object.keys(schedule).forEach(key => {
-                            const [dayIndex, timeIndex] = key.split('-').map(Number);
-                            const shifts = schedule[key];
+                        Object.keys(lockedShifts).forEach(lockKey => {
+                            const [dayIndex, time, workerId] = lockKey.split('-').map(Number);
+                            const blockId = `${dayIndex}-${workerId}`;
                             
-                            shifts.forEach(shift => {
-                                const lockKey = `${dayIndex}-${timeIndex}-${shift.workerId}`;
-                                if (lockedShifts[lockKey]) {
-                                    if (!preservedShifts[key]) {
-                                        preservedShifts[key] = [];
-                                    }
-                                    preservedShifts[key].push(shift);
+                            if (processedBlocks.has(blockId)) return;
+                            processedBlocks.add(blockId);
+                            
+                            // Find all time slots for this worker on this day that are part of locked shifts
+                            Object.keys(schedule).forEach(scheduleKey => {
+                                const [schedDayIndex, schedTimeIndex] = scheduleKey.split('-').map(Number);
+                                if (schedDayIndex === dayIndex) {
+                                    const shifts = schedule[scheduleKey];
+                                    shifts.forEach(shift => {
+                                        if (shift.workerId === workerId) {
+                                            // Check if this specific slot is locked
+                                            const checkKey = `${schedDayIndex}-${schedTimeIndex}-${workerId}`;
+                                            if (lockedShifts[checkKey]) {
+                                                if (!preservedShifts[scheduleKey]) {
+                                                    preservedShifts[scheduleKey] = [];
+                                                }
+                                                if (!preservedShifts[scheduleKey].some(s => s.workerId === workerId)) {
+                                                    preservedShifts[scheduleKey].push(shift);
+                                                }
+                                            }
+                                        }
+                                    });
                                 }
                             });
                         });
@@ -2588,53 +2806,109 @@
                 return;
             }
             
-            // Preserve locked shifts
-            const preservedShifts = {};
+            // Step 1: Identify all locked shift blocks (continuous ranges)
+            const lockedShiftBlocks = [];
+            const processedKeys = new Set();
             
-            // First, identify and preserve all locked shifts
-            Object.keys(schedule).forEach(key => {
-                const [dayIndex, timeIndex] = key.split('-').map(Number);
-                const shifts = schedule[key];
+            Object.keys(lockedShifts).forEach(lockKey => {
+                if (processedKeys.has(lockKey)) return;
                 
-                shifts.forEach(shift => {
-                    const lockKey = `${dayIndex}-${timeIndex}-${shift.workerId}`;
-                    if (lockedShifts[lockKey]) {
-                        if (!preservedShifts[key]) {
-                            preservedShifts[key] = [];
-                        }
-                        preservedShifts[key].push(shift);
+                const [dayIndex, startTime, workerId] = lockKey.split('-').map(Number);
+                
+                // Find the full extent of this locked shift block
+                let currentTime = startTime;
+                
+                // Find the actual start of the block (go backwards)
+                while (currentTime > 0) {
+                    const prevKey = `${dayIndex}-${currentTime - 1}`;
+                    if (schedule[prevKey] && schedule[prevKey].some(s => s.workerId === workerId)) {
+                        currentTime--;
+                    } else {
+                        break;
                     }
+                }
+                const blockStart = currentTime;
+                
+                // Find the end of the block (go forwards)
+                currentTime = startTime;
+                while (currentTime < times.length - 1) {
+                    const nextKey = `${dayIndex}-${currentTime + 1}`;
+                    if (schedule[nextKey] && schedule[nextKey].some(s => s.workerId === workerId)) {
+                        currentTime++;
+                    } else {
+                        break;
+                    }
+                }
+                const blockEnd = currentTime;
+                
+                // Mark all slots in this block as processed
+                for (let t = blockStart; t <= blockEnd; t++) {
+                    processedKeys.add(`${dayIndex}-${t}-${workerId}`);
+                }
+                
+                // Store the entire block
+                lockedShiftBlocks.push({
+                    dayIndex,
+                    startTime: blockStart,
+                    endTime: blockEnd,
+                    workerId
                 });
             });
             
-            // Clear schedule but keep preserved shifts
-            schedule = {};
+            // Step 2: Build new schedule with only the complete locked shift blocks
+            const newSchedule = {};
             
-            // Restore preserved shifts
-            Object.keys(preservedShifts).forEach(key => {
-                schedule[key] = preservedShifts[key];
+            lockedShiftBlocks.forEach(block => {
+                // Find the worker info
+                const worker = workers.find(w => w.id === block.workerId);
+                if (!worker) return;
+                
+                // Add all time slots for this locked block
+                for (let timeIndex = block.startTime; timeIndex <= block.endTime; timeIndex++) {
+                    const key = `${block.dayIndex}-${timeIndex}`;
+                    
+                    if (!newSchedule[key]) {
+                        newSchedule[key] = [];
+                    }
+                    
+                    // Only add if not already there
+                    if (!newSchedule[key].some(s => s.workerId === block.workerId)) {
+                        newSchedule[key].push({
+                            workerId: block.workerId,
+                            workerName: worker.name,
+                            color: worker.color
+                        });
+                    }
+                }
             });
             
-            // Simple auto-scheduling algorithm (modified to check for existing locked shifts)
+            // Step 3: Replace the schedule with locked-only version
+            schedule = newSchedule;
+            
+            // Step 4: Build a map of occupied slots per worker
+            const workerOccupiedSlots = {};
             workers.forEach(worker => {
-                let hoursScheduled = 0;
-                const maxHours = worker.maxHours;
-                
-                // Count hours already scheduled for locked shifts
-                Object.keys(schedule).forEach(key => {
-                    const shifts = schedule[key];
-                    if (shifts.some(s => s.workerId === worker.id)) {
-                        hoursScheduled++;
-                    }
+                workerOccupiedSlots[worker.id] = new Set();
+            });
+            
+            Object.keys(schedule).forEach(key => {
+                const shifts = schedule[key];
+                shifts.forEach(shift => {
+                    workerOccupiedSlots[shift.workerId].add(key);
                 });
+            });
+            
+            // Step 5: Auto-schedule remaining availability
+            workers.forEach(worker => {
+                let slotsScheduled = workerOccupiedSlots[worker.id].size;
+                const maxSlots = worker.maxHours * 2; // Convert hours to 30-minute slots
+                
+                if (slotsScheduled >= maxSlots) return;
                 
                 days.forEach((day, dayIndex) => {
-                    if (hoursScheduled >= maxHours * 2) return; // Convert to slots
-                    
                     const availability = worker.availability[day];
-                    if (!availability) return;
+                    if (!availability || slotsScheduled >= maxSlots) return;
                     
-                    // Parse availability
                     const parts = availability.split('-');
                     if (parts.length !== 2) return;
                     
@@ -2642,29 +2916,33 @@
                     const endTime = parseTime(parts[1].trim());
                     
                     for (let timeIndex = startTime; timeIndex < endTime && timeIndex < times.length; timeIndex++) {
-                        if (hoursScheduled >= maxHours * 2) break; // Convert to slots
+                        if (slotsScheduled >= maxSlots) break;
                         
-                        const key = `${dayIndex}-${timeIndex}`;
+                        const slotKey = `${dayIndex}-${timeIndex}`;
                         
-                        // Check if this slot has a locked shift for this worker
-                        const lockKey = `${dayIndex}-${timeIndex}-${worker.id}`;
-                        const hasLockedShift = schedule[key] && schedule[key].some(s => s.workerId === worker.id);
-                        
-                        if (!hasLockedShift) {
-                            if (!schedule[key]) {
-                                schedule[key] = [];
-                            }
-                            
-                            // Check if worker already scheduled at this time
-                            if (!schedule[key].find(s => s.workerId === worker.id)) {
-                                schedule[key].push({
-                                    workerId: worker.id,
-                                    workerName: worker.name,
-                                    color: worker.color
-                                });
-                                hoursScheduled++;
-                            }
+                        // Skip if worker already has this slot
+                        if (workerOccupiedSlots[worker.id].has(slotKey)) {
+                            continue;
                         }
+                        
+                        if (!schedule[slotKey]) {
+                            schedule[slotKey] = [];
+                        }
+                        
+                        // Final check - ensure worker isn't already in this slot
+                        if (schedule[slotKey].some(s => s.workerId === worker.id)) {
+                            continue;
+                        }
+                        
+                        // Add the shift
+                        schedule[slotKey].push({
+                            workerId: worker.id,
+                            workerName: worker.name,
+                            color: worker.color
+                        });
+                        
+                        workerOccupiedSlots[worker.id].add(slotKey);
+                        slotsScheduled++;
                     }
                 });
             });
@@ -2759,7 +3037,7 @@
             });
             
             // Reset form
-            document.getElementById('shiftDay').value = '1'; // Default to Monday (1)
+            document.getElementById('shiftDay').value = '1'; // Default to Monday
             document.getElementById('shiftStartTime').value = '09:00';
             document.getElementById('shiftEndTime').value = '17:00';
             document.getElementById('customTimeRange').value = '';
@@ -2988,8 +3266,49 @@
             document.getElementById('coopHours').textContent = coopHours % 1 === 0 ? coopHours : coopHours.toFixed(1);
             document.getElementById('totalBreaks').textContent = totalBreaks;
             
-            // Update locked shifts count
-            const lockedCount = Object.keys(lockedShifts).length;
+            // Update locked shifts count (count unique blocks, not individual slots)
+            const lockedBlocks = new Set();
+            const processedLockKeys = new Set();
+            
+            Object.keys(lockedShifts).forEach(lockKey => {
+                if (processedLockKeys.has(lockKey)) return;
+                
+                const [dayIndex, startTime, workerId] = lockKey.split('-').map(Number);
+                
+                // Find the full extent of this locked shift block
+                let blockStart = startTime;
+                let blockEnd = startTime;
+                
+                // Find start
+                while (blockStart > 0) {
+                    const prevKey = `${dayIndex}-${blockStart - 1}`;
+                    if (schedule[prevKey] && schedule[prevKey].some(s => s.workerId === workerId)) {
+                        blockStart--;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // Find end
+                while (blockEnd < times.length - 1) {
+                    const nextKey = `${dayIndex}-${blockEnd + 1}`;
+                    if (schedule[nextKey] && schedule[nextKey].some(s => s.workerId === workerId)) {
+                        blockEnd++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // Mark all slots in this block as processed
+                for (let t = blockStart; t <= blockEnd; t++) {
+                    processedLockKeys.add(`${dayIndex}-${t}-${workerId}`);
+                }
+                
+                // Add unique block identifier
+                lockedBlocks.add(`${dayIndex}-${blockStart}-${blockEnd}-${workerId}`);
+            });
+            
+            const lockedCount = lockedBlocks.size;
             document.getElementById('totalLocked').textContent = lockedCount;
         }
         
@@ -3011,7 +3330,7 @@
             });
             
             // Reset form
-            document.getElementById('breakDay').value = '1'; // Default to Monday (1)
+            document.getElementById('breakDay').value = '1'; // Default to Monday
             document.getElementById('breakDuration').value = '30';
             document.getElementById('breakType').value = 'unpaid';
             document.getElementById('breakNotes').value = '';
@@ -3259,13 +3578,13 @@
                         type: worker.type,
                         color: worker.color,
                         schedule: {
-                            Sunday: [],
                             Monday: [],
                             Tuesday: [],
                             Wednesday: [], 
                             Thursday: [],
                             Friday: [],
-                            Saturday: []
+                            Saturday: [],
+                            Sunday: []
                         }
                     };
                 });
@@ -3318,8 +3637,8 @@
                             // Check if break required
                             let requiresBreak = false;
                             
-                            // Weekend full-day rule: Sunday (0) or Saturday (6), 12PM-6PM (index 10-21)
-                            const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6;
+                            // Weekend full-day rule: 12PM-6PM (index 10-21) gets break regardless of worker type
+                            const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6; // Saturday or Sunday
                             const isFullWeekendShift = isWeekend && currentStart === 10 && currentEnd === 21; // 12PM-6PM
                             
                             if (isFullWeekendShift) {
@@ -3376,8 +3695,8 @@
                     // Check if break required
                     let requiresBreak = false;
                     
-                    // Weekend full-day rule: Sunday (0) or Saturday (6), 12PM-6PM (index 10-21)
-                    const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6;
+                    // Weekend full-day rule: 12PM-6PM (index 10-21) gets break regardless of worker type
+                    const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6; // Saturday or Sunday
                     const isFullWeekendShift = isWeekend && currentStart === 10 && currentEnd === 21; // 12PM-6PM
                     
                     if (isFullWeekendShift) {
@@ -3512,7 +3831,7 @@
                     // Calculate total hours for this worker
                     let totalWeeklyHours = 0;
                     
-                    ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].forEach(day => {
+                    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
                         const dayShifts = worker.schedule[day];
                         textOutput += `• ${day}: `;
                         
