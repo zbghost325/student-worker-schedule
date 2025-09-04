@@ -184,10 +184,53 @@
             margin-top: 5px;
         }
         
+        .filter-banner {
+            padding: 10px 20px;
+            background: #e3f2fd;
+            border-bottom: 2px solid #2196F3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .filter-banner-text {
+            font-weight: 600;
+            color: #1976D2;
+        }
+        
+        .clear-filter-btn {
+            padding: 4px 12px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .clear-filter-btn:hover {
+            background: #1976D2;
+        }
+        
         .main-content {
             display: flex;
             height: calc(100vh - 200px);
             min-height: 800px;
+            position: relative;
         }
         
         .sidebar {
@@ -196,6 +239,58 @@
             border-right: 2px solid #e0e0e0;
             padding: 20px;
             overflow-y: auto;
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            margin-left: -280px;
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar-toggle {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: #ff4444;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0 0 4px 0;
+            transition: all 0.3s ease;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .sidebar-toggle:hover {
+            background: #ff2222;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .sidebar-toggle.collapsed {
+            left: 0;
+        }
+        
+        .toggle-arrow {
+            width: 0;
+            height: 0;
+            border-style: solid;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-arrow.left {
+            border-width: 6px 10px 6px 0;
+            border-color: transparent white transparent transparent;
+        }
+        
+        .toggle-arrow.right {
+            border-width: 6px 0 6px 10px;
+            border-color: transparent transparent transparent white;
         }
         
         .worker-category {
@@ -257,14 +352,39 @@
             color: #666;
         }
         
-        .delete-worker {
-            background: #ff4444;
+        .worker-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .delete-worker, .filter-worker {
             color: white;
             border: none;
             padding: 2px 6px;
             border-radius: 3px;
             cursor: pointer;
             font-size: 11px;
+            transition: all 0.2s;
+        }
+        
+        .delete-worker {
+            background: #ff4444;
+        }
+        
+        .delete-worker:hover {
+            background: #ff2222;
+        }
+        
+        .filter-worker {
+            background: #2196F3;
+        }
+        
+        .filter-worker:hover {
+            background: #1976D2;
+        }
+        
+        .filter-worker.active {
+            background: #4CAF50;
         }
         
         .schedule-container {
@@ -272,6 +392,7 @@
             padding: 20px;
             overflow: auto;
             position: relative;
+            transition: margin-left 0.3s ease;
         }
         
         .schedule-container * {
@@ -1084,14 +1205,24 @@
             <!-- Will be populated dynamically -->
         </div>
         
+        <div id="filterBanner" style="display: none;" class="filter-banner">
+            <span class="filter-banner-text">🔍 Filtering: Showing only <span id="filterWorkerName"></span>'s shifts</span>
+            <button class="clear-filter-btn" onclick="clearWorkerFilter()">Clear Filter</button>
+        </div>
+        
         <div class="main-content">
-            <div class="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle sidebar">
+                <div class="toggle-arrow left" id="toggleArrow"></div>
+            </button>
+            
+            <div class="sidebar" id="sidebar">
                 <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="openAddWorkerModal()">
                     + Add Worker
                 </button>
                 
                 <div style="font-size: 11px; color: #666; text-align: center; margin-bottom: 15px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
                     💡 Select worker, then click grid to add shifts<br>
+                    🔍 Click magnifying glass to filter one worker's shifts<br>
                     🔄 Drag workers between categories<br>
                     📏 Drag bottom edge to resize shifts<br>
                     ⏰ Manual Entry for custom times<br>
@@ -1106,14 +1237,14 @@
                 <div class="category-toggles">
                     <h4>👁️ Show Shifts On Calendar</h4>
                     <div class="toggle-item">
-                        <span>🔶 Full Time Staff</span>
+                        <span>🟶 Full Time Staff</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="toggleFullTime" checked onchange="toggleCategory('fullTime')">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
                     <div class="toggle-item">
-                        <span>🔷 Co-op Students</span>
+                        <span>🟷 Co-op Students</span>
                         <label class="toggle-switch">
                             <input type="checkbox" id="toggleCoop" checked onchange="toggleCategory('coop')">
                             <span class="toggle-slider"></span>
@@ -1136,12 +1267,12 @@
                 </div>
                 
                 <div class="worker-category" id="fullTimeCategory">
-                    <h3>🔶 Full Time Staff</h3>
+                    <h3>🟶 Full Time Staff</h3>
                     <div id="fullTimeWorkers"></div>
                 </div>
                 
                 <div class="worker-category" id="coopCategory">
-                    <h3>🔷 Co-op Students</h3>
+                    <h3>🟷 Co-op Students</h3>
                     <div id="coopWorkers"></div>
                 </div>
                 
@@ -1362,12 +1493,53 @@
         let selectedWorker = null;
         let draggedShift = null;
         let draggedWorker = null;
+        let workerFilter = null; // Store currently filtered worker
+        let sidebarCollapsed = false; // Track sidebar state
         let categoryVisibility = {
             fullTime: true,
             coop: true,
             partTime: true,
             workStudy: true
         };
+        
+        // Toggle sidebar function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const toggleArrow = document.getElementById('toggleArrow');
+            const scheduleContainer = document.querySelector('.schedule-container');
+            
+            sidebarCollapsed = !sidebarCollapsed;
+            
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                toggleBtn.classList.add('collapsed');
+                toggleArrow.classList.remove('left');
+                toggleArrow.classList.add('right');
+                toggleBtn.title = 'Expand sidebar';
+                
+                // Expand the calendar to use full width
+                if (scheduleContainer) {
+                    scheduleContainer.style.marginLeft = '30px'; // Leave room for toggle button
+                }
+            } else {
+                sidebar.classList.remove('collapsed');
+                toggleBtn.classList.remove('collapsed');
+                toggleArrow.classList.remove('right');
+                toggleArrow.classList.add('left');
+                toggleBtn.title = 'Collapse sidebar';
+                
+                // Reset calendar margin
+                if (scheduleContainer) {
+                    scheduleContainer.style.marginLeft = '0';
+                }
+            }
+            
+            // Re-render schedule to adjust to new width
+            setTimeout(() => {
+                renderSchedule();
+            }, 300); // Wait for animation to complete
+        }
         
         // Days and times - Saturday first, Sunday last with half-hour increments
         const days = ['Saturday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sunday'];
@@ -1421,11 +1593,33 @@
             manualBreaks = {};
             lockedShifts = {};
             selectedWorker = null;
+            workerFilter = null;
+            sidebarCollapsed = false;
             categoryVisibility = { fullTime: true, coop: true, partTime: true, workStudy: true };
             
             // Clear header inputs
             document.getElementById('semesterInput').value = '';
             document.getElementById('versionInput').value = '';
+            
+            // Reset sidebar state
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const toggleArrow = document.getElementById('toggleArrow');
+            const scheduleContainer = document.querySelector('.schedule-container');
+            
+            if (sidebar) {
+                sidebar.classList.remove('collapsed');
+            }
+            if (toggleBtn) {
+                toggleBtn.classList.remove('collapsed');
+            }
+            if (toggleArrow) {
+                toggleArrow.classList.remove('right');
+                toggleArrow.classList.add('left');
+            }
+            if (scheduleContainer) {
+                scheduleContainer.style.marginLeft = '0';
+            }
         }
 
         function showMainApp() {
@@ -1657,6 +1851,36 @@
             };
         }
         
+        function filterWorker(workerId) {
+            const worker = workers.find(w => w.id === workerId);
+            if (!worker) return;
+            
+            workerFilter = worker;
+            
+            // Update filter banner
+            document.getElementById('filterBanner').style.display = 'flex';
+            document.getElementById('filterWorkerName').textContent = worker.name;
+            
+            // Re-render
+            renderWorkers();
+            renderSchedule();
+            updateStats();
+            updateLegend();
+        }
+        
+        function clearWorkerFilter() {
+            workerFilter = null;
+            
+            // Hide filter banner
+            document.getElementById('filterBanner').style.display = 'none';
+            
+            // Re-render
+            renderWorkers();
+            renderSchedule();
+            updateStats();
+            updateLegend();
+        }
+        
         function toggleCategory(categoryType) {
             categoryVisibility[categoryType] = !categoryVisibility[categoryType];
             
@@ -1683,8 +1907,16 @@
             const legend = document.getElementById('legend');
             legend.innerHTML = '';
             
-            // Only show workers from visible categories
-            workers.filter(workerItem => categoryVisibility[workerItem.type]).forEach(workerItem => {
+            // If filter is active, only show filtered worker
+            let workersToShow;
+            if (workerFilter) {
+                workersToShow = [workerFilter];
+            } else {
+                // Only show workers from visible categories
+                workersToShow = workers.filter(workerItem => categoryVisibility[workerItem.type]);
+            }
+            
+            workersToShow.forEach(workerItem => {
                 const item = document.createElement('div');
                 item.className = 'legend-item';
                 
@@ -1694,6 +1926,9 @@
                 
                 const name = document.createElement('span');
                 name.textContent = workerItem.name;
+                if (workerFilter && workerFilter.id === workerItem.id) {
+                    name.textContent += ' (Filtered)';
+                }
                 
                 item.appendChild(color);
                 item.appendChild(name);
@@ -2130,16 +2365,42 @@
                     <div class="worker-hours">Max: ${worker.maxHours}h/week</div>
                 `;
                 
+                const actions = document.createElement('div');
+                actions.className = 'worker-actions';
+                
+                const filterBtn = document.createElement('button');
+                filterBtn.className = 'filter-worker';
+                if (workerFilter && workerFilter.id === worker.id) {
+                    filterBtn.classList.add('active');
+                    filterBtn.innerHTML = '🔍';
+                    filterBtn.title = 'Filtering active';
+                } else {
+                    filterBtn.innerHTML = '🔍';
+                    filterBtn.title = 'Filter to show only this worker\'s shifts';
+                }
+                filterBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (workerFilter && workerFilter.id === worker.id) {
+                        clearWorkerFilter();
+                    } else {
+                        filterWorker(worker.id);
+                    }
+                };
+                
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-worker';
                 deleteBtn.textContent = '×';
+                deleteBtn.title = 'Delete worker';
                 deleteBtn.onclick = (e) => {
                     e.stopPropagation();
                     deleteWorker(worker.id);
                 };
                 
+                actions.appendChild(filterBtn);
+                actions.appendChild(deleteBtn);
+                
                 div.appendChild(info);
-                div.appendChild(deleteBtn);
+                div.appendChild(actions);
                 
                 if (categories[worker.type]) {
                     categories[worker.type].appendChild(div);
@@ -2306,6 +2567,11 @@
             // Group shifts by day - only include visible categories
             const shiftsByDay = {};
             allShifts.forEach(shift => {
+                // Check if worker filter is active and if this shift matches
+                if (workerFilter && shift.workerId !== workerFilter.id) {
+                    return; // Skip if not matching filter
+                }
+                
                 // Check visibility before grouping
                 const workerInfo = workers.find(w => w.id === shift.workerId);
                 if (workerInfo && categoryVisibility[workerInfo.type]) {
@@ -2365,6 +2631,11 @@
             
             // Fourth pass: render all visible shift blocks with proper positioning
             allShifts.forEach(shift => {
+                // Check if worker filter is active and if this shift matches
+                if (workerFilter && shift.workerId !== workerFilter.id) {
+                    return; // Skip rendering if not matching filter
+                }
+                
                 // Check if this worker's category is visible
                 const workerInfo = workers.find(w => w.id === shift.workerId);
                 if (!workerInfo || !categoryVisibility[workerInfo.type]) {
@@ -2793,6 +3064,11 @@
                 manualBreaks = {};
                 lockedShifts = {};
                 selectedWorker = null;
+                workerFilter = null;
+                
+                // Hide filter banner if active
+                document.getElementById('filterBanner').style.display = 'none';
+                
                 renderWorkers();
                 renderSchedule();
                 updateStats();
@@ -2932,976 +3208,993 @@
                         // Final check - ensure worker isn't already in this slot
                         if (schedule[slotKey].some(s => s.workerId === worker.id)) {
                             continue;
-                        }
+						}
                         
-                        // Add the shift
-                        schedule[slotKey].push({
-                            workerId: worker.id,
-                            workerName: worker.name,
-                            color: worker.color
-                        });
+						                        // Add the shift
+						                        schedule[slotKey].push({
+						                            workerId: worker.id,
+						                            workerName: worker.name,
+						                            color: worker.color
+						                        });
                         
-                        workerOccupiedSlots[worker.id].add(slotKey);
-                        slotsScheduled++;
-                    }
-                });
-            });
+						                        workerOccupiedSlots[worker.id].add(slotKey);
+						                        slotsScheduled++;
+						                    }
+						                });
+						            });
             
-            renderSchedule();
-            updateStats();
-        }
+						            renderSchedule();
+						            updateStats();
+						        }
         
-        function parseTime(timeStr) {
-            // Enhanced time parser - handles various formats
-            const cleaned = timeStr.toUpperCase().replace(/\s+/g, ' ').trim();
+						        function parseTime(timeStr) {
+						            // Enhanced time parser - handles various formats
+						            const cleaned = timeStr.toUpperCase().replace(/\s+/g, ' ').trim();
             
-            // Try to find exact match first
-            const exactIndex = times.findIndex(t => t.toUpperCase() === cleaned);
-            if (exactIndex >= 0) return exactIndex;
+						            // Try to find exact match first
+						            const exactIndex = times.findIndex(t => t.toUpperCase() === cleaned);
+						            if (exactIndex >= 0) return exactIndex;
             
-            // Parse different time formats
-            let hour = 0;
-            let minute = 0;
-            let isPM = false;
+						            // Parse different time formats
+						            let hour = 0;
+						            let minute = 0;
+						            let isPM = false;
             
-            // Check for AM/PM
-            if (cleaned.includes('PM')) {
-                isPM = true;
-            }
+						            // Check for AM/PM
+						            if (cleaned.includes('PM')) {
+						                isPM = true;
+						            }
             
-            // Remove AM/PM for parsing
-            const timePart = cleaned.replace(/[AP]M/g, '').trim();
+						            // Remove AM/PM for parsing
+						            const timePart = cleaned.replace(/[AP]M/g, '').trim();
             
-            // Parse time with colon (e.g., "9:30")
-            if (timePart.includes(':')) {
-                const parts = timePart.split(':');
-                hour = parseInt(parts[0]);
-                minute = parseInt(parts[1]) || 0;
-            } else {
-                // Parse time without colon (e.g., "930" or "9")
-                hour = parseInt(timePart);
-                if (timePart.length > 2) {
-                    // Format like "930" or "1030"
-                    hour = Math.floor(parseInt(timePart) / 100);
-                    minute = parseInt(timePart) % 100;
-                }
-            }
+						            // Parse time with colon (e.g., "9:30")
+						            if (timePart.includes(':')) {
+						                const parts = timePart.split(':');
+						                hour = parseInt(parts[0]);
+						                minute = parseInt(parts[1]) || 0;
+						            } else {
+						                // Parse time without colon (e.g., "930" or "9")
+						                hour = parseInt(timePart);
+						                if (timePart.length > 2) {
+						                    // Format like "930" or "1030"
+						                    hour = Math.floor(parseInt(timePart) / 100);
+						                    minute = parseInt(timePart) % 100;
+						                }
+						            }
             
-            // Convert to 24-hour if PM
-            if (isPM && hour < 12) {
-                hour += 12;
-            } else if (!isPM && hour === 12) {
-                hour = 0;
-            }
+						            // Convert to 24-hour if PM
+						            if (isPM && hour < 12) {
+						                hour += 12;
+						            } else if (!isPM && hour === 12) {
+						                hour = 0;
+						            }
             
-            // Find closest half-hour slot
-            const targetMinutes = hour * 60 + minute;
-            let closestIndex = 0;
-            let closestDiff = Infinity;
+						            // Find closest half-hour slot
+						            const targetMinutes = hour * 60 + minute;
+						            let closestIndex = 0;
+						            let closestDiff = Infinity;
             
-            times.forEach((t, index) => {
-                // Parse the time slot
-                let slotHour = parseInt(t.split(':')[0]);
-                const slotMinute = parseInt(t.split(':')[1]);
-                const slotIsPM = t.includes('PM');
+						            times.forEach((t, index) => {
+						                // Parse the time slot
+						                let slotHour = parseInt(t.split(':')[0]);
+						                const slotMinute = parseInt(t.split(':')[1]);
+						                const slotIsPM = t.includes('PM');
                 
-                if (slotIsPM && slotHour < 12) {
-                    slotHour += 12;
-                } else if (!slotIsPM && slotHour === 12) {
-                    slotHour = 0;
-                }
+						                if (slotIsPM && slotHour < 12) {
+						                    slotHour += 12;
+						                } else if (!slotIsPM && slotHour === 12) {
+						                    slotHour = 0;
+						                }
                 
-                const slotMinutes = slotHour * 60 + slotMinute;
-                const diff = Math.abs(slotMinutes - targetMinutes);
+						                const slotMinutes = slotHour * 60 + slotMinute;
+						                const diff = Math.abs(slotMinutes - targetMinutes);
                 
-                if (diff < closestDiff) {
-                    closestDiff = diff;
-                    closestIndex = index;
-                }
-            });
+						                if (diff < closestDiff) {
+						                    closestDiff = diff;
+						                    closestIndex = index;
+						                }
+						            });
             
-            return closestIndex;
-        }
+						            return closestIndex;
+						        }
         
-        function openManualShiftModal() {
-            // Populate worker dropdown
-            const workerSelect = document.getElementById('shiftWorker');
-            workerSelect.innerHTML = '<option value="">Select a worker...</option>';
+						        function openManualShiftModal() {
+						            // Populate worker dropdown
+						            const workerSelect = document.getElementById('shiftWorker');
+						            workerSelect.innerHTML = '<option value="">Select a worker...</option>';
             
-            workers.forEach(worker => {
-                const option = document.createElement('option');
-                option.value = worker.id;
-                option.textContent = worker.name;
-                option.style.backgroundColor = worker.color + '40';
-                workerSelect.appendChild(option);
-            });
+						            workers.forEach(worker => {
+						                const option = document.createElement('option');
+						                option.value = worker.id;
+						                option.textContent = worker.name;
+						                option.style.backgroundColor = worker.color + '40';
+						                workerSelect.appendChild(option);
+						            });
             
-            // Reset form
-            document.getElementById('shiftDay').value = '1'; // Default to Monday
-            document.getElementById('shiftStartTime').value = '09:00';
-            document.getElementById('shiftEndTime').value = '17:00';
-            document.getElementById('customTimeRange').value = '';
+						            // Reset form
+						            document.getElementById('shiftDay').value = '1'; // Default to Monday
+						            document.getElementById('shiftStartTime').value = '09:00';
+						            document.getElementById('shiftEndTime').value = '17:00';
+						            document.getElementById('customTimeRange').value = '';
             
-            document.getElementById('manualShiftModal').classList.add('active');
-        }
+						            document.getElementById('manualShiftModal').classList.add('active');
+						        }
         
-        function closeManualShiftModal() {
-            document.getElementById('manualShiftModal').classList.remove('active');
-        }
+						        function closeManualShiftModal() {
+						            document.getElementById('manualShiftModal').classList.remove('active');
+						        }
         
-        function addManualShift() {
-            const workerId = parseInt(document.getElementById('shiftWorker').value);
-            const dayIndex = parseInt(document.getElementById('shiftDay').value);
-            const customTime = document.getElementById('customTimeRange').value;
+						        function addManualShift() {
+						            const workerId = parseInt(document.getElementById('shiftWorker').value);
+						            const dayIndex = parseInt(document.getElementById('shiftDay').value);
+						            const customTime = document.getElementById('customTimeRange').value;
             
-            if (!workerId) {
-                alert('Please select a worker');
-                return;
-            }
+						            if (!workerId) {
+						                alert('Please select a worker');
+						                return;
+						            }
             
-            const worker = workers.find(w => w.id === workerId);
-            if (!worker) {
-                alert('Worker not found');
-                return;
-            }
+						            const worker = workers.find(w => w.id === workerId);
+						            if (!worker) {
+						                alert('Worker not found');
+						                return;
+						            }
             
-            let startTimeIndex, endTimeIndex;
+						            let startTimeIndex, endTimeIndex;
             
-            if (customTime) {
-                // Parse custom time range
-                const parts = customTime.split('-').map(p => p.trim());
-                if (parts.length !== 2) {
-                    alert('Please enter time range as "start - end" (e.g., 9:15 AM - 2:45 PM)');
-                    return;
-                }
+						            if (customTime) {
+						                // Parse custom time range
+						                const parts = customTime.split('-').map(p => p.trim());
+						                if (parts.length !== 2) {
+						                    alert('Please enter time range as "start - end" (e.g., 9:15 AM - 2:45 PM)');
+						                    return;
+						                }
                 
-                startTimeIndex = parseTime(parts[0]);
-                endTimeIndex = parseTime(parts[1]);
-            } else {
-                // Use time inputs
-                const startTime = document.getElementById('shiftStartTime').value;
-                const endTime = document.getElementById('shiftEndTime').value;
+						                startTimeIndex = parseTime(parts[0]);
+						                endTimeIndex = parseTime(parts[1]);
+						            } else {
+						                // Use time inputs
+						                const startTime = document.getElementById('shiftStartTime').value;
+						                const endTime = document.getElementById('shiftEndTime').value;
                 
-                if (!startTime || !endTime) {
-                    alert('Please enter start and end times');
-                    return;
-                }
+						                if (!startTime || !endTime) {
+						                    alert('Please enter start and end times');
+						                    return;
+						                }
                 
-                // Convert HTML time input to our format
-                const convertHTMLTime = (timeStr) => {
-                    const [hour, minute] = timeStr.split(':').map(Number);
-                    const isPM = hour >= 12;
-                    const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
-                    const ampm = isPM ? 'PM' : 'AM';
-                    return `${displayHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
-                };
+						                // Convert HTML time input to our format
+						                const convertHTMLTime = (timeStr) => {
+						                    const [hour, minute] = timeStr.split(':').map(Number);
+						                    const isPM = hour >= 12;
+						                    const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+						                    const ampm = isPM ? 'PM' : 'AM';
+						                    return `${displayHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+						                };
                 
-                startTimeIndex = parseTime(convertHTMLTime(startTime));
-                endTimeIndex = parseTime(convertHTMLTime(endTime));
-            }
+						                startTimeIndex = parseTime(convertHTMLTime(startTime));
+						                endTimeIndex = parseTime(convertHTMLTime(endTime));
+						            }
             
-            if (endTimeIndex <= startTimeIndex) {
-                alert('End time must be after start time');
-                return;
-            }
+						            if (endTimeIndex <= startTimeIndex) {
+						                alert('End time must be after start time');
+						                return;
+						            }
             
-            // Add shift for each time slot
-            for (let i = startTimeIndex; i <= endTimeIndex; i++) {
-                const key = `${dayIndex}-${i}`;
-                if (!schedule[key]) {
-                    schedule[key] = [];
-                }
+						            // Add shift for each time slot
+						            for (let i = startTimeIndex; i <= endTimeIndex; i++) {
+						                const key = `${dayIndex}-${i}`;
+						                if (!schedule[key]) {
+						                    schedule[key] = [];
+						                }
                 
-                // Check if worker already scheduled at this time
-                if (!schedule[key].find(s => s.workerId === workerId)) {
-                    schedule[key].push({
-                        workerId: workerId,
-                        workerName: worker.name,
-                        color: worker.color
-                    });
-                }
-            }
+						                // Check if worker already scheduled at this time
+						                if (!schedule[key].find(s => s.workerId === workerId)) {
+						                    schedule[key].push({
+						                        workerId: workerId,
+						                        workerName: worker.name,
+						                        color: worker.color
+						                    });
+						                }
+						            }
             
-            renderSchedule();
-            updateStats();
-            closeManualShiftModal();
-        }
+						            renderSchedule();
+						            updateStats();
+						            closeManualShiftModal();
+						        }
         
-        function updateStats() {
-            document.getElementById('totalWorkers').textContent = workers.length;
+						        function updateStats() {
+						            document.getElementById('totalWorkers').textContent = workers.length;
             
-            // Count total scheduled hours by worker type (each slot is 30 minutes) - account for unpaid breaks
-            let totalSlots = 0;
-            let partTimeSlots = 0;
-            let coopSlots = 0;
-            let totalBreaks = 0;
+						            // Count total scheduled hours by worker type (each slot is 30 minutes) - account for unpaid breaks
+						            let totalSlots = 0;
+						            let partTimeSlots = 0;
+						            let coopSlots = 0;
+						            let totalBreaks = 0;
             
-            // Group shifts by worker and day to detect long shifts requiring breaks
-            const workerDayShifts = {};
+						            // Group shifts by worker and day to detect long shifts requiring breaks
+						            const workerDayShifts = {};
             
-            Object.keys(schedule).forEach(key => {
-                const shifts = schedule[key];
-                if (!shifts || shifts.length === 0) return;
+						            Object.keys(schedule).forEach(key => {
+						                const shifts = schedule[key];
+						                if (!shifts || shifts.length === 0) return;
                 
-                const [dayIndex, timeIndex] = key.split('-').map(Number);
+						                const [dayIndex, timeIndex] = key.split('-').map(Number);
                 
-                shifts.forEach(shift => {
-                    const workerDayKey = `${shift.workerId}-${dayIndex}`;
-                    if (!workerDayShifts[workerDayKey]) {
-                        workerDayShifts[workerDayKey] = {
-                            workerId: shift.workerId,
-                            dayIndex: dayIndex,
-                            timeSlots: new Set()
-                        };
-                    }
-                    workerDayShifts[workerDayKey].timeSlots.add(timeIndex);
-                });
-            });
+						                shifts.forEach(shift => {
+						                    const workerDayKey = `${shift.workerId}-${dayIndex}`;
+						                    if (!workerDayShifts[workerDayKey]) {
+						                        workerDayShifts[workerDayKey] = {
+						                            workerId: shift.workerId,
+						                            dayIndex: dayIndex,
+						                            timeSlots: new Set()
+						                        };
+						                    }
+						                    workerDayShifts[workerDayKey].timeSlots.add(timeIndex);
+						                });
+						            });
             
-            // Calculate continuous shift blocks and count breaks by worker type
-            Object.values(workerDayShifts).forEach(workerDay => {
-                // Check if this worker's category is visible
-                const workerInfo = workers.find(w => w.id === workerDay.workerId);
-                if (!workerInfo || !categoryVisibility[workerInfo.type]) {
-                    return; // Skip counting hours from hidden categories
-                }
+						            // Calculate continuous shift blocks and count breaks by worker type
+						            Object.values(workerDayShifts).forEach(workerDay => {
+						                // Check if worker filter is active and if this worker matches
+						                if (workerFilter && workerDay.workerId !== workerFilter.id) {
+						                    return; // Skip counting if not matching filter
+						                }
                 
-                const timeSlots = Array.from(workerDay.timeSlots).sort((a, b) => a - b);
+						                // Check if this worker's category is visible
+						                const workerInfo = workers.find(w => w.id === workerDay.workerId);
+						                if (!workerInfo || !categoryVisibility[workerInfo.type]) {
+						                    return; // Skip counting hours from hidden categories
+						                }
                 
-                if (timeSlots.length === 0) return;
+						                const timeSlots = Array.from(workerDay.timeSlots).sort((a, b) => a - b);
                 
-                // Find continuous ranges
-                let currentStart = timeSlots[0];
-                let currentEnd = timeSlots[0];
+						                if (timeSlots.length === 0) return;
                 
-                for (let i = 1; i < timeSlots.length; i++) {
-                    if (timeSlots[i] === currentEnd + 1) {
-                        currentEnd = timeSlots[i];
-                    } else {
-                        // End of continuous range - check if break required
-                        const rangeHours = currentEnd - currentStart + 1;
+						                // Find continuous ranges
+						                let currentStart = timeSlots[0];
+						                let currentEnd = timeSlots[0];
+                
+						                for (let i = 1; i < timeSlots.length; i++) {
+						                    if (timeSlots[i] === currentEnd + 1) {
+						                        currentEnd = timeSlots[i];
+						                    } else {
+						                        // End of continuous range - check if break required
+						                        const rangeHours = currentEnd - currentStart + 1;
                         
-                        // Add to appropriate worker type totals
-                        totalSlots += rangeHours;
-                        if (workerInfo.type === 'partTime') {
-                            partTimeSlots += rangeHours;
-                        } else if (workerInfo.type === 'coop') {
-                            coopSlots += rangeHours;
-                        }
+						                        // Add to appropriate worker type totals
+						                        totalSlots += rangeHours;
+						                        if (workerInfo.type === 'partTime') {
+						                            partTimeSlots += rangeHours;
+						                        } else if (workerInfo.type === 'coop') {
+						                            coopSlots += rangeHours;
+						                        }
                         
-                        // Check for breaks
-                        if (rangeHours > 12 && workerInfo && workerInfo.type !== 'fullTime') { // More than 6 hours requires break (except full-time)
-                            totalBreaks += 1; // 30-minute break = 1 slot
-                            // Subtract break from worker type totals
-                            if (workerInfo.type === 'partTime') {
-                                partTimeSlots -= 1;
-                            } else if (workerInfo.type === 'coop') {
-                                coopSlots -= 1;
-                            }
-                            totalSlots -= 1;
-                        }
+						                        // Check for breaks
+						                        if (rangeHours > 12 && workerInfo && workerInfo.type !== 'fullTime') { // More than 6 hours requires break (except full-time)
+						                            totalBreaks += 1; // 30-minute break = 1 slot
+						                            // Subtract break from worker type totals
+						                            if (workerInfo.type === 'partTime') {
+						                                partTimeSlots -= 1;
+						                            } else if (workerInfo.type === 'coop') {
+						                                coopSlots -= 1;
+						                            }
+						                            totalSlots -= 1;
+						                        }
                         
-                        // Check for manual breaks
-                        const manualBreakKey = `${workerDay.workerId}-${workerDay.dayIndex}`;
-                        const manualBreak = manualBreaks[manualBreakKey];
-                        if (manualBreak && manualBreak.type === 'unpaid') {
-                            const breakSlots = Math.ceil(manualBreak.duration / 30); // Convert minutes to slots
-                            totalSlots -= breakSlots;
-                            if (workerInfo.type === 'partTime') {
-                                partTimeSlots -= breakSlots;
-                            } else if (workerInfo.type === 'coop') {
-                                coopSlots -= breakSlots;
-                            }
-                        }
+						                        // Check for manual breaks
+						                        const manualBreakKey = `${workerDay.workerId}-${workerDay.dayIndex}`;
+						                        const manualBreak = manualBreaks[manualBreakKey];
+						                        if (manualBreak && manualBreak.type === 'unpaid') {
+						                            const breakSlots = Math.ceil(manualBreak.duration / 30); // Convert minutes to slots
+						                            totalSlots -= breakSlots;
+						                            if (workerInfo.type === 'partTime') {
+						                                partTimeSlots -= breakSlots;
+						                            } else if (workerInfo.type === 'coop') {
+						                                coopSlots -= breakSlots;
+						                            }
+						                        }
                         
-                        currentStart = timeSlots[i];
-                        currentEnd = timeSlots[i];
-                    }
-                }
+						                        currentStart = timeSlots[i];
+						                        currentEnd = timeSlots[i];
+						                    }
+						                }
                 
-                // Handle the last range
-                const rangeHours = currentEnd - currentStart + 1;
+						                // Handle the last range
+						                const rangeHours = currentEnd - currentStart + 1;
                 
-                // Add to appropriate worker type totals
-                totalSlots += rangeHours;
-                if (workerInfo.type === 'partTime') {
-                    partTimeSlots += rangeHours;
-                } else if (workerInfo.type === 'coop') {
-                    coopSlots += rangeHours;
-                }
+						                // Add to appropriate worker type totals
+						                totalSlots += rangeHours;
+						                if (workerInfo.type === 'partTime') {
+						                    partTimeSlots += rangeHours;
+						                } else if (workerInfo.type === 'coop') {
+						                    coopSlots += rangeHours;
+						                }
                 
-                // Check for breaks
-                if (rangeHours > 12 && workerInfo && workerInfo.type !== 'fullTime') { // More than 6 hours requires break (except full-time)
-                    totalBreaks += 1; // 30-minute break = 1 slot
-                    // Subtract break from worker type totals
-                    if (workerInfo.type === 'partTime') {
-                        partTimeSlots -= 1;
-                    } else if (workerInfo.type === 'coop') {
-                        coopSlots -= 1;
-                    }
-                    totalSlots -= 1;
-                }
+						                // Check for breaks
+						                if (rangeHours > 12 && workerInfo && workerInfo.type !== 'fullTime') { // More than 6 hours requires break (except full-time)
+						                    totalBreaks += 1; // 30-minute break = 1 slot
+						                    // Subtract break from worker type totals
+						                    if (workerInfo.type === 'partTime') {
+						                        partTimeSlots -= 1;
+						                    } else if (workerInfo.type === 'coop') {
+						                        coopSlots -= 1;
+						                    }
+						                    totalSlots -= 1;
+						                }
                 
-                // Check for manual breaks
-                const manualBreakKey = `${workerDay.workerId}-${workerDay.dayIndex}`;
-                const manualBreak = manualBreaks[manualBreakKey];
-                if (manualBreak && manualBreak.type === 'unpaid') {
-                    const breakSlots = Math.ceil(manualBreak.duration / 30); // Convert minutes to slots
-                    totalSlots -= breakSlots;
-                    if (workerInfo.type === 'partTime') {
-                        partTimeSlots -= breakSlots;
-                    } else if (workerInfo.type === 'coop') {
-                        coopSlots -= breakSlots;
-                    }
-                }
-            });
+						                // Check for manual breaks
+						                const manualBreakKey = `${workerDay.workerId}-${workerDay.dayIndex}`;
+						                const manualBreak = manualBreaks[manualBreakKey];
+						                if (manualBreak && manualBreak.type === 'unpaid') {
+						                    const breakSlots = Math.ceil(manualBreak.duration / 30); // Convert minutes to slots
+						                    totalSlots -= breakSlots;
+						                    if (workerInfo.type === 'partTime') {
+						                        partTimeSlots -= breakSlots;
+						                    } else if (workerInfo.type === 'coop') {
+						                        coopSlots -= breakSlots;
+						                    }
+						                }
+						            });
             
-            // Convert slots to hours and update display
-            const totalHours = totalSlots * 0.5;
-            const partTimeHours = partTimeSlots * 0.5;
-            const coopHours = coopSlots * 0.5;
+						            // Convert slots to hours and update display
+						            const totalHours = totalSlots * 0.5;
+						            const partTimeHours = partTimeSlots * 0.5;
+						            const coopHours = coopSlots * 0.5;
             
-            document.getElementById('totalHours').textContent = totalHours % 1 === 0 ? totalHours : totalHours.toFixed(1);
-            document.getElementById('partTimeHours').textContent = partTimeHours % 1 === 0 ? partTimeHours : partTimeHours.toFixed(1);
-            document.getElementById('coopHours').textContent = coopHours % 1 === 0 ? coopHours : coopHours.toFixed(1);
-            document.getElementById('totalBreaks').textContent = totalBreaks;
+						            document.getElementById('totalHours').textContent = totalHours % 1 === 0 ? totalHours : totalHours.toFixed(1);
+						            document.getElementById('partTimeHours').textContent = partTimeHours % 1 === 0 ? partTimeHours : partTimeHours.toFixed(1);
+						            document.getElementById('coopHours').textContent = coopHours % 1 === 0 ? coopHours : coopHours.toFixed(1);
+						            document.getElementById('totalBreaks').textContent = totalBreaks;
             
-            // Update locked shifts count (count unique blocks, not individual slots)
-            const lockedBlocks = new Set();
-            const processedLockKeys = new Set();
+						            // Update locked shifts count (count unique blocks, not individual slots)
+						            const lockedBlocks = new Set();
+						            const processedLockKeys = new Set();
             
-            Object.keys(lockedShifts).forEach(lockKey => {
-                if (processedLockKeys.has(lockKey)) return;
+						            Object.keys(lockedShifts).forEach(lockKey => {
+						                if (processedLockKeys.has(lockKey)) return;
                 
-                const [dayIndex, startTime, workerId] = lockKey.split('-').map(Number);
+						                const [dayIndex, startTime, workerId] = lockKey.split('-').map(Number);
                 
-                // Find the full extent of this locked shift block
-                let blockStart = startTime;
-                let blockEnd = startTime;
+						                // Find the full extent of this locked shift block
+						                let blockStart = startTime;
+						                let blockEnd = startTime;
                 
-                // Find start
-                while (blockStart > 0) {
-                    const prevKey = `${dayIndex}-${blockStart - 1}`;
-                    if (schedule[prevKey] && schedule[prevKey].some(s => s.workerId === workerId)) {
-                        blockStart--;
-                    } else {
-                        break;
-                    }
-                }
+						                // Find start
+						                while (blockStart > 0) {
+						                    const prevKey = `${dayIndex}-${blockStart - 1}`;
+						                    if (schedule[prevKey] && schedule[prevKey].some(s => s.workerId === workerId)) {
+						                        blockStart--;
+						                    } else {
+						                        break;
+						                    }
+						                }
                 
-                // Find end
-                while (blockEnd < times.length - 1) {
-                    const nextKey = `${dayIndex}-${blockEnd + 1}`;
-                    if (schedule[nextKey] && schedule[nextKey].some(s => s.workerId === workerId)) {
-                        blockEnd++;
-                    } else {
-                        break;
-                    }
-                }
+						                // Find end
+						                while (blockEnd < times.length - 1) {
+						                    const nextKey = `${dayIndex}-${blockEnd + 1}`;
+						                    if (schedule[nextKey] && schedule[nextKey].some(s => s.workerId === workerId)) {
+						                        blockEnd++;
+						                    } else {
+						                        break;
+						                    }
+						                }
                 
-                // Mark all slots in this block as processed
-                for (let t = blockStart; t <= blockEnd; t++) {
-                    processedLockKeys.add(`${dayIndex}-${t}-${workerId}`);
-                }
+						                // Mark all slots in this block as processed
+						                for (let t = blockStart; t <= blockEnd; t++) {
+						                    processedLockKeys.add(`${dayIndex}-${t}-${workerId}`);
+						                }
                 
-                // Add unique block identifier
-                lockedBlocks.add(`${dayIndex}-${blockStart}-${blockEnd}-${workerId}`);
-            });
+						                // Add unique block identifier
+						                lockedBlocks.add(`${dayIndex}-${blockStart}-${blockEnd}-${workerId}`);
+						            });
             
-            const lockedCount = lockedBlocks.size;
-            document.getElementById('totalLocked').textContent = lockedCount;
-        }
+						            const lockedCount = lockedBlocks.size;
+						            document.getElementById('totalLocked').textContent = lockedCount;
+						        }
         
-        function exportSchedule() {
-            // This function is replaced by the export button event listener below
-        }
+						        function exportSchedule() {
+						            // This function is replaced by the export button event listener below
+						        }
         
-        function openManualBreakModal() {
-            // Populate worker dropdown
-            const workerSelect = document.getElementById('breakWorker');
-            workerSelect.innerHTML = '<option value="">Select a worker...</option>';
+						        function openManualBreakModal() {
+						            // Populate worker dropdown
+						            const workerSelect = document.getElementById('breakWorker');
+						            workerSelect.innerHTML = '<option value="">Select a worker...</option>';
             
-            workers.forEach(worker => {
-                const option = document.createElement('option');
-                option.value = worker.id;
-                option.textContent = worker.name;
-                option.style.backgroundColor = worker.color + '40';
-                workerSelect.appendChild(option);
-            });
+						            workers.forEach(worker => {
+						                const option = document.createElement('option');
+						                option.value = worker.id;
+						                option.textContent = worker.name;
+						                option.style.backgroundColor = worker.color + '40';
+						                workerSelect.appendChild(option);
+						            });
             
-            // Reset form
-            document.getElementById('breakDay').value = '1'; // Default to Monday
-            document.getElementById('breakDuration').value = '30';
-            document.getElementById('breakType').value = 'unpaid';
-            document.getElementById('breakNotes').value = '';
+						            // Reset form
+						            document.getElementById('breakDay').value = '1'; // Default to Monday
+						            document.getElementById('breakDuration').value = '30';
+						            document.getElementById('breakType').value = 'unpaid';
+						            document.getElementById('breakNotes').value = '';
             
-            document.getElementById('manualBreakModal').classList.add('active');
-        }
+						            document.getElementById('manualBreakModal').classList.add('active');
+						        }
         
-        function closeManualBreakModal() {
-            document.getElementById('manualBreakModal').classList.remove('active');
-        }
+						        function closeManualBreakModal() {
+						            document.getElementById('manualBreakModal').classList.remove('active');
+						        }
         
-        function addManualBreak() {
-            const workerId = parseInt(document.getElementById('breakWorker').value);
-            const dayIndex = parseInt(document.getElementById('breakDay').value);
-            const duration = parseInt(document.getElementById('breakDuration').value);
-            const type = document.getElementById('breakType').value;
-            const notes = document.getElementById('breakNotes').value;
+						        function addManualBreak() {
+						            const workerId = parseInt(document.getElementById('breakWorker').value);
+						            const dayIndex = parseInt(document.getElementById('breakDay').value);
+						            const duration = parseInt(document.getElementById('breakDuration').value);
+						            const type = document.getElementById('breakType').value;
+						            const notes = document.getElementById('breakNotes').value;
             
-            if (!workerId) {
-                alert('Please select a worker');
-                return;
-            }
+						            if (!workerId) {
+						                alert('Please select a worker');
+						                return;
+						            }
             
-            const worker = workers.find(w => w.id === workerId);
-            if (!worker) {
-                alert('Worker not found');
-                return;
-            }
+						            const worker = workers.find(w => w.id === workerId);
+						            if (!worker) {
+						                alert('Worker not found');
+						                return;
+						            }
             
-            // Check if worker has a shift on this day
-            const hasShiftOnDay = Object.keys(schedule).some(key => {
-                const [scheduleDayIndex] = key.split('-').map(Number);
-                const shifts = schedule[key];
-                return scheduleDayIndex === dayIndex && shifts && shifts.some(s => s.workerId === workerId);
-            });
+						            // Check if worker has a shift on this day
+						            const hasShiftOnDay = Object.keys(schedule).some(key => {
+						                const [scheduleDayIndex] = key.split('-').map(Number);
+						                const shifts = schedule[key];
+						                return scheduleDayIndex === dayIndex && shifts && shifts.some(s => s.workerId === workerId);
+						            });
             
-            if (!hasShiftOnDay) {
-                if (!confirm(`${worker.name} doesn't appear to have a shift on ${days[dayIndex]}. Add break anyway?`)) {
-                    return;
-                }
-            }
+						            if (!hasShiftOnDay) {
+						                if (!confirm(`${worker.name} doesn't appear to have a shift on ${days[dayIndex]}. Add break anyway?`)) {
+						                    return;
+						                }
+						            }
             
-            const breakKey = `${workerId}-${dayIndex}`;
-            manualBreaks[breakKey] = {
-                workerId: workerId,
-                workerName: worker.name,
-                dayIndex: dayIndex,
-                duration: duration,
-                type: type,
-                notes: notes,
-                id: Date.now() // For tracking
-            };
+						            const breakKey = `${workerId}-${dayIndex}`;
+						            manualBreaks[breakKey] = {
+						                workerId: workerId,
+						                workerName: worker.name,
+						                dayIndex: dayIndex,
+						                duration: duration,
+						                type: type,
+						                notes: notes,
+						                id: Date.now() // For tracking
+						            };
             
-            // Re-render schedule to show break indicators
-            renderSchedule();
-            closeManualBreakModal();
+						            // Re-render schedule to show break indicators
+						            renderSchedule();
+						            closeManualBreakModal();
             
-            alert(`Added ${duration} minute ${type} break for ${worker.name} on ${days[dayIndex]}`);
-        }
+						            alert(`Added ${duration} minute ${type} break for ${worker.name} on ${days[dayIndex]}`);
+						        }
         
-        function saveState() {
-            const currentDate = new Date();
-            const timestamp = `${currentDate.getMonth() + 1}-${currentDate.getDate()}-${currentDate.getFullYear().toString().substr(-2)}_${currentDate.getHours().toString().padStart(2, '0')}-${currentDate.getMinutes().toString().padStart(2, '0')}`;
+						        function saveState() {
+						            const currentDate = new Date();
+						            const timestamp = `${currentDate.getMonth() + 1}-${currentDate.getDate()}-${currentDate.getFullYear().toString().substr(-2)}_${currentDate.getHours().toString().padStart(2, '0')}-${currentDate.getMinutes().toString().padStart(2, '0')}`;
             
-            const semester = document.getElementById('semesterInput').value;
-            const version = document.getElementById('versionInput').value;
+						            const semester = document.getElementById('semesterInput').value;
+						            const version = document.getElementById('versionInput').value;
             
-            const state = {
-                version: '1.0',
-                timestamp: currentDate.toISOString(),
-                semester: semester,
-                versionDate: version,
-                workers: workers,
-                schedule: schedule,
-                manualBreaks: manualBreaks,
-                lockedShifts: lockedShifts,
-                categoryVisibility: categoryVisibility,
-                selectedWorkerId: selectedWorker ? selectedWorker.id : null,
-                metadata: {
-                    totalWorkers: workers.length,
-                    totalShifts: Object.keys(schedule).length,
-                    totalManualBreaks: Object.keys(manualBreaks).length,
-                    totalLockedShifts: Object.keys(lockedShifts).length,
-                    exportedBy: 'Student Worker Schedule Board'
-                }
-            };
+						            const state = {
+						                version: '1.0',
+						                timestamp: currentDate.toISOString(),
+						                semester: semester,
+						                versionDate: version,
+						                workers: workers,
+						                schedule: schedule,
+						                manualBreaks: manualBreaks,
+						                lockedShifts: lockedShifts,
+						                categoryVisibility: categoryVisibility,
+						                selectedWorkerId: selectedWorker ? selectedWorker.id : null,
+						                metadata: {
+						                    totalWorkers: workers.length,
+						                    totalShifts: Object.keys(schedule).length,
+						                    totalManualBreaks: Object.keys(manualBreaks).length,
+						                    totalLockedShifts: Object.keys(lockedShifts).length,
+						                    exportedBy: 'Student Worker Schedule Board'
+						                }
+						            };
             
-            // Create filename from semester and version
-            const sanitizeName = (str) => str.replace(/[^a-zA-Z0-9\s\-\_]/g, '').replace(/\s+/g, '-');
-            let filename = 'schedule';
+						            // Create filename from semester and version
+						            const sanitizeName = (str) => str.replace(/[^a-zA-Z0-9\s\-\_]/g, '').replace(/\s+/g, '-');
+						            let filename = 'schedule';
             
-            if (semester) {
-                filename += `-${sanitizeName(semester)}`;
-            }
-            if (version) {
-                filename += `-${sanitizeName(version)}`;
-            }
-            filename += `-${timestamp}.json`;
+						            if (semester) {
+						                filename += `-${sanitizeName(semester)}`;
+						            }
+						            if (version) {
+						                filename += `-${sanitizeName(version)}`;
+						            }
+						            filename += `-${timestamp}.json`;
             
-            const jsonString = JSON.stringify(state, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            window.URL.revokeObjectURL(url);
+						            const jsonString = JSON.stringify(state, null, 2);
+						            const blob = new Blob([jsonString], { type: 'application/json' });
+						            const url = window.URL.createObjectURL(blob);
+						            const a = document.createElement('a');
+						            a.href = url;
+						            a.download = filename;
+						            a.click();
+						            window.URL.revokeObjectURL(url);
             
-            // Show success message
-            const originalText = document.getElementById('saveStateBtn').textContent;
-            document.getElementById('saveStateBtn').textContent = '✅ Saved!';
-            document.getElementById('saveStateBtn').style.background = '#4CAF50';
-            setTimeout(() => {
-                document.getElementById('saveStateBtn').textContent = originalText;
-                document.getElementById('saveStateBtn').style.background = '#2196F3';
-            }, 2000);
-        }
+						            // Show success message
+						            const originalText = document.getElementById('saveStateBtn').textContent;
+						            document.getElementById('saveStateBtn').textContent = '✅ Saved!';
+						            document.getElementById('saveStateBtn').style.background = '#4CAF50';
+						            setTimeout(() => {
+						                document.getElementById('saveStateBtn').textContent = originalText;
+						                document.getElementById('saveStateBtn').style.background = '#2196F3';
+						            }, 2000);
+						        }
         
-        function loadState(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+						        function loadState(event) {
+						            const file = event.target.files[0];
+						            if (!file) return;
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const state = JSON.parse(e.target.result);
+						            const reader = new FileReader();
+						            reader.onload = function(e) {
+						                try {
+						                    const state = JSON.parse(e.target.result);
                     
-                    // Validate state structure  
-                    if (!state.workers || !state.schedule) {
-                        alert('Invalid state file format. Please select a valid schedule state JSON file.');
-                        return;
-                    }
+						                    // Validate state structure  
+						                    if (!state.workers || !state.schedule) {
+						                        alert('Invalid state file format. Please select a valid schedule state JSON file.');
+						                        return;
+						                    }
                     
-                    // Confirm before loading
-                    const loadTime = new Date(state.timestamp).toLocaleDateString();
-                    const semesterInfo = state.semester ? ` (${state.semester})` : '';
-                    const versionInfo = state.versionDate ? ` - ${state.versionDate}` : '';
-                    const displayTitle = (state.semester || state.versionDate) ? `${semesterInfo}${versionInfo}` : ' (No title set)';
-                    const confirmMsg = `Load schedule state from ${loadTime}${displayTitle}?\n\n` +
-                                     `Workers: ${state.metadata?.totalWorkers || state.workers.length}\n` +
-                                     `Shifts: ${state.metadata?.totalShifts || Object.keys(state.schedule).length}\n` +
-                                     `Locked Shifts: ${state.metadata?.totalLockedShifts || 0}\n\n` +
-                                     `This will replace your current work.`;
+						                    // Confirm before loading
+						                    const loadTime = new Date(state.timestamp).toLocaleDateString();
+						                    const semesterInfo = state.semester ? ` (${state.semester})` : '';
+						                    const versionInfo = state.versionDate ? ` - ${state.versionDate}` : '';
+						                    const displayTitle = (state.semester || state.versionDate) ? `${semesterInfo}${versionInfo}` : ' (No title set)';
+						                    const confirmMsg = `Load schedule state from ${loadTime}${displayTitle}?\n\n` +
+						                                     `Workers: ${state.metadata?.totalWorkers || state.workers.length}\n` +
+						                                     `Shifts: ${state.metadata?.totalShifts || Object.keys(state.schedule).length}\n` +
+						                                     `Locked Shifts: ${state.metadata?.totalLockedShifts || 0}\n\n` +
+						                                     `This will replace your current work.`;
                     
-                    if (!confirm(confirmMsg)) return;
+						                    if (!confirm(confirmMsg)) return;
                     
-                    // Restore state
-                    workers = state.workers || [];
-                    schedule = state.schedule || {};
-                    manualBreaks = state.manualBreaks || {};
-                    lockedShifts = state.lockedShifts || {};
-                    categoryVisibility = state.categoryVisibility || {
-                        fullTime: true,
-                        coop: true,
-                        partTime: true,
-                        workStudy: true
-                    };
+						                    // Restore state
+						                    workers = state.workers || [];
+						                    schedule = state.schedule || {};
+						                    manualBreaks = state.manualBreaks || {};
+						                    lockedShifts = state.lockedShifts || {};
+						                    categoryVisibility = state.categoryVisibility || {
+						                        fullTime: true,
+						                        coop: true,
+						                        partTime: true,
+						                        workStudy: true
+						                    };
                     
-                    // Restore header values
-                    document.getElementById('semesterInput').value = state.semester || '';
-                    document.getElementById('versionInput').value = state.versionDate || '';
-                    updateHeaderDisplay();
+						                    // Restore header values
+						                    document.getElementById('semesterInput').value = state.semester || '';
+						                    document.getElementById('versionInput').value = state.versionDate || '';
+						                    updateHeaderDisplay();
                     
-                    // Restore selected worker
-                    selectedWorker = null;
-                    if (state.selectedWorkerId) {
-                        selectedWorker = workers.find(w => w.id === state.selectedWorkerId);
-                    }
+						                    // Restore selected worker
+						                    selectedWorker = null;
+						                    if (state.selectedWorkerId) {
+						                        selectedWorker = workers.find(w => w.id === state.selectedWorkerId);
+						                    }
                     
-                    // If loading from start screen, show main app and initialize
-                    const isFromStartScreen = document.getElementById('startScreen').style.display !== 'none';
-                    if (isFromStartScreen) {
-                        document.getElementById('startScreen').style.display = 'none';
-                        document.getElementById('mainApp').style.display = 'block';
-                        initializeGrid(); // Initialize grid when coming from start screen
-                        addEventListeners();
-                    }
+						                    // If loading from start screen, show main app and initialize
+						                    const isFromStartScreen = document.getElementById('startScreen').style.display !== 'none';
+						                    if (isFromStartScreen) {
+						                        document.getElementById('startScreen').style.display = 'none';
+						                        document.getElementById('mainApp').style.display = 'block';
+						                        initializeGrid(); // Initialize grid when coming from start screen
+						                        addEventListeners();
+						                    }
                     
-                    // Update category toggles
-                    document.getElementById('toggleFullTime').checked = categoryVisibility.fullTime;
-                    document.getElementById('toggleCoop').checked = categoryVisibility.coop;
-                    document.getElementById('togglePartTime').checked = categoryVisibility.partTime;
-                    document.getElementById('toggleWorkStudy').checked = categoryVisibility.workStudy;
+						                    // Update category toggles
+						                    document.getElementById('toggleFullTime').checked = categoryVisibility.fullTime;
+						                    document.getElementById('toggleCoop').checked = categoryVisibility.coop;
+						                    document.getElementById('togglePartTime').checked = categoryVisibility.partTime;
+						                    document.getElementById('toggleWorkStudy').checked = categoryVisibility.workStudy;
                     
-                    // Re-render everything
-                    renderWorkers();
-                    renderSchedule();
-                    updateStats();
-                    updateDate();
-                    updateLegend();
-                    updateLockStatus();
+						                    // Re-render everything
+						                    renderWorkers();
+						                    renderSchedule();
+						                    updateStats();
+						                    updateDate();
+						                    updateLegend();
+						                    updateLockStatus();
                     
-                    // Show success message
-                    const originalText = document.getElementById('loadStateBtn').textContent;
-                    document.getElementById('loadStateBtn').textContent = '✅ Loaded!';
-                    document.getElementById('loadStateBtn').style.background = '#4CAF50';
-                    setTimeout(() => {
-                        document.getElementById('loadStateBtn').textContent = originalText;
-                        document.getElementById('loadStateBtn').style.background = '#2196F3';
-                    }, 2000);
+						                    // Show success message
+						                    const originalText = document.getElementById('loadStateBtn').textContent;
+						                    document.getElementById('loadStateBtn').textContent = '✅ Loaded!';
+						                    document.getElementById('loadStateBtn').style.background = '#4CAF50';
+						                    setTimeout(() => {
+						                        document.getElementById('loadStateBtn').textContent = originalText;
+						                        document.getElementById('loadStateBtn').style.background = '#2196F3';
+						                    }, 2000);
                     
-                } catch (error) {
-                    alert('Error loading state file. Please check the file format and try again.\n\nError: ' + error.message);
-                }
+						                } catch (error) {
+						                    alert('Error loading state file. Please check the file format and try again.\n\nError: ' + error.message);
+						                }
                 
-                // Reset file input
-                event.target.value = '';
-            };
+						                // Reset file input
+						                event.target.value = '';
+						            };
             
-            reader.readAsText(file);
-        }
+						            reader.readAsText(file);
+						        }
 
-        function addEventListeners() {
-            if (window.listenersAdded) return;
+						        function addEventListeners() {
+						            if (window.listenersAdded) return;
             
-            console.log('Adding event listeners...');
+						            console.log('Adding event listeners...');
             
-            document.getElementById('clearScheduleBtn').addEventListener('click', clearSchedule);
-            document.getElementById('autoScheduleBtn').addEventListener('click', autoSchedule);
-            document.getElementById('resetAllBtn').addEventListener('click', clearAllData);
-            document.getElementById('manualEntryBtn').addEventListener('click', openManualShiftModal);
-            document.getElementById('manualBreakBtn').addEventListener('click', openManualBreakModal);
-            document.getElementById('saveStateBtn').addEventListener('click', saveState);
-            document.getElementById('loadStateBtn').addEventListener('click', () => document.getElementById('loadStateFile').click());
-            document.getElementById('loadStateFile').addEventListener('change', loadState);
+						            document.getElementById('clearScheduleBtn').addEventListener('click', clearSchedule);
+						            document.getElementById('autoScheduleBtn').addEventListener('click', autoSchedule);
+						            document.getElementById('resetAllBtn').addEventListener('click', clearAllData);
+						            document.getElementById('manualEntryBtn').addEventListener('click', openManualShiftModal);
+						            document.getElementById('manualBreakBtn').addEventListener('click', openManualBreakModal);
+						            document.getElementById('saveStateBtn').addEventListener('click', saveState);
+						            document.getElementById('loadStateBtn').addEventListener('click', () => document.getElementById('loadStateFile').click());
+						            document.getElementById('loadStateFile').addEventListener('change', loadState);
             
-            // Header input listeners
-            document.getElementById('semesterInput').addEventListener('input', updateHeaderDisplay);
-            document.getElementById('versionInput').addEventListener('input', updateHeaderDisplay);
+						            // Header input listeners
+						            document.getElementById('semesterInput').addEventListener('input', updateHeaderDisplay);
+						            document.getElementById('versionInput').addEventListener('input', updateHeaderDisplay);
             
-            // Export button - define the function inline to ensure it works
-            document.getElementById('exportBtn').addEventListener('click', function() {
-                console.log('Generating full worker schedules...');
+						            // Export button - define the function inline to ensure it works
+						            document.getElementById('exportBtn').addEventListener('click', function() {
+						                console.log('Generating full worker schedules...');
                 
-                const exportResults = document.getElementById('exportResults');
-                const exportContent = document.getElementById('exportContent');
+						                const exportResults = document.getElementById('exportResults');
+						                const exportContent = document.getElementById('exportContent');
                 
-                // Build schedule data
-                const workerSchedules = {};
+						                // Build schedule data
+						                const workerSchedules = {};
                 
-                // Initialize each visible worker
-                workers.filter(w => categoryVisibility[w.type]).forEach(worker => {
-                    workerSchedules[worker.id] = {
-                        name: worker.name,
-                        type: worker.type,
-                        color: worker.color,
-                        schedule: {
-                            Monday: [],
-                            Tuesday: [],
-                            Wednesday: [], 
-                            Thursday: [],
-                            Friday: [],
-                            Saturday: [],
-                            Sunday: []
-                        }
-                    };
-                });
+						                // Initialize each visible worker
+						                workers.filter(w => categoryVisibility[w.type]).forEach(worker => {
+						                    workerSchedules[worker.id] = {
+						                        name: worker.name,
+						                        type: worker.type,
+						                        color: worker.color,
+						                        schedule: {
+						                            Monday: [],
+						                            Tuesday: [],
+						                            Wednesday: [], 
+						                            Thursday: [],
+						                            Friday: [],
+						                            Saturday: [],
+						                            Sunday: []
+						                        }
+						                    };
+						                });
                 
-                // Group all shifts by worker and day
-                const workerDayShifts = {};
-                Object.keys(schedule).forEach(key => {
-                    const shifts = schedule[key];
-                    if (!shifts || shifts.length === 0) return;
+						                // Group all shifts by worker and day
+						                const workerDayShifts = {};
+						                Object.keys(schedule).forEach(key => {
+						                    const shifts = schedule[key];
+						                    if (!shifts || shifts.length === 0) return;
                     
-                    const [dayIndex, timeIndex] = key.split('-').map(Number);
+						                    const [dayIndex, timeIndex] = key.split('-').map(Number);
                     
-                    shifts.forEach(shift => {
-                        const worker = workers.find(w => w.id === shift.workerId);
-                        if (!worker || !categoryVisibility[worker.type]) return;
+						                    shifts.forEach(shift => {
+						                        const worker = workers.find(w => w.id === shift.workerId);
+						                        if (!worker || !categoryVisibility[worker.type]) return;
                         
-                        const workerDayKey = `${shift.workerId}-${dayIndex}`;
-                        if (!workerDayShifts[workerDayKey]) {
-                            workerDayShifts[workerDayKey] = {
-                                workerId: shift.workerId,
-                                workerName: shift.workerName,
-                                dayIndex: dayIndex,
-                                timeSlots: new Set()
-                            };
-                        }
-                        workerDayShifts[workerDayKey].timeSlots.add(timeIndex);
-                    });
-                });
+						                        const workerDayKey = `${shift.workerId}-${dayIndex}`;
+						                        if (!workerDayShifts[workerDayKey]) {
+						                            workerDayShifts[workerDayKey] = {
+						                                workerId: shift.workerId,
+						                                workerName: shift.workerName,
+						                                dayIndex: dayIndex,
+						                                timeSlots: new Set()
+						                            };
+						                        }
+						                        workerDayShifts[workerDayKey].timeSlots.add(timeIndex);
+						                    });
+						                });
                 
-                // Process continuous shift blocks for each worker per day
-                Object.values(workerDayShifts).forEach(workerDay => {
-                    const timeSlots = Array.from(workerDay.timeSlots).sort((a, b) => a - b);
-                    const dayName = days[workerDay.dayIndex];
+						                // Process continuous shift blocks for each worker per day
+						                Object.values(workerDayShifts).forEach(workerDay => {
+						                    const timeSlots = Array.from(workerDay.timeSlots).sort((a, b) => a - b);
+						                    const dayName = days[workerDay.dayIndex];
                     
-                    if (timeSlots.length === 0 || !workerSchedules[workerDay.workerId]) return;
+						                    if (timeSlots.length === 0 || !workerSchedules[workerDay.workerId]) return;
                     
-                    // Find continuous ranges
-                    let currentStart = timeSlots[0];
-                    let currentEnd = timeSlots[0];
+						                    // Find continuous ranges
+						                    let currentStart = timeSlots[0];
+						                    let currentEnd = timeSlots[0];
                     
-                    for (let i = 1; i < timeSlots.length; i++) {
-                        if (timeSlots[i] === currentEnd + 1) {
-                            currentEnd = timeSlots[i];
-                        } else {
-                            // Save current shift range
-                            const hours = currentEnd - currentStart + 1;
-                            const actualHours = hours * 0.5;
-                            const worker = workers.find(w => w.id === workerDay.workerId);
+						                    for (let i = 1; i < timeSlots.length; i++) {
+						                        if (timeSlots[i] === currentEnd + 1) {
+						                            currentEnd = timeSlots[i];
+						                        } else {
+						                            // Save current shift range
+						                            const hours = currentEnd - currentStart + 1;
+						                            const actualHours = hours * 0.5;
+						                            const worker = workers.find(w => w.id === workerDay.workerId);
                             
-                            // Check if break required
-                            let requiresBreak = false;
+						                            // Check if break required
+						                            let requiresBreak = false;
                             
-                            // Weekend full-day rule: 12PM-6PM (index 10-21) gets break regardless of worker type
-                            const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6; // Saturday or Sunday
-                            const isFullWeekendShift = isWeekend && currentStart === 10 && currentEnd === 21; // 12PM-6PM
+						                            // Weekend full-day rule: 12PM-6PM (index 10-21) gets break regardless of worker type
+						                            const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6; // Saturday or Sunday
+						                            const isFullWeekendShift = isWeekend && currentStart === 10 && currentEnd === 21; // 12PM-6PM
                             
-                            if (isFullWeekendShift) {
-                                requiresBreak = true;
-                            } else {
-                                // Regular rule: students with 6+ hours get break
-                                requiresBreak = hours > 12 && worker && worker.type !== 'fullTime';
-                            }
+						                            if (isFullWeekendShift) {
+						                                requiresBreak = true;
+						                            } else {
+						                                // Regular rule: students with 6+ hours get break
+						                                requiresBreak = hours > 12 && worker && worker.type !== 'fullTime';
+						                            }
                             
-                            const paidHours = requiresBreak ? actualHours - 0.5 : actualHours;
+						                            const paidHours = requiresBreak ? actualHours - 0.5 : actualHours;
                             
-                            // Check for manual breaks on this day
-                            const manualBreakKey = `${workerDay.workerId}-${workerDay.dayIndex}`;
-                            const manualBreak = manualBreaks[manualBreakKey];
+						                            // Check for manual breaks on this day
+						                            const manualBreakKey = `${workerDay.workerId}-${workerDay.dayIndex}`;
+						                            const manualBreak = manualBreaks[manualBreakKey];
                             
-                            let finalPaidHours = paidHours;
-                            let breakInfo = { requiresBreak, isManual: false, manualBreak: null };
+						                            let finalPaidHours = paidHours;
+						                            let breakInfo = { requiresBreak, isManual: false, manualBreak: null };
                             
-                            if (manualBreak) {
-                                if (manualBreak.type === 'unpaid') {
-                                    finalPaidHours = actualHours - (manualBreak.duration / 60);
-                                } else {
-                                    finalPaidHours = actualHours; // Paid breaks don't reduce hours
-                                }
-                                breakInfo = { 
-                                    requiresBreak: true, 
-                                    isManual: true, 
-                                    manualBreak: manualBreak 
-                                };
-                            }
+						                            if (manualBreak) {
+						                                if (manualBreak.type === 'unpaid') {
+						                                    finalPaidHours = actualHours - (manualBreak.duration / 60);
+						                                } else {
+						                                    finalPaidHours = actualHours; // Paid breaks don't reduce hours
+						                                }
+						                                breakInfo = { 
+						                                    requiresBreak: true, 
+						                                    isManual: true, 
+						                                    manualBreak: manualBreak 
+						                                };
+						                            }
                             
-                            const startTime = times[currentStart];
-                            const endTime = currentEnd + 1 < times.length ? times[currentEnd + 1] : times[currentEnd];
+						                            const startTime = times[currentStart];
+						                            const endTime = currentEnd + 1 < times.length ? times[currentEnd + 1] : times[currentEnd];
                             
-                            workerSchedules[workerDay.workerId].schedule[dayName].push({
-                                timeRange: `${startTime}-${endTime}`,
-                                hours: finalPaidHours,
-                                requiresBreak: breakInfo.requiresBreak,
-                                isManualBreak: breakInfo.isManual,
-                                manualBreak: breakInfo.manualBreak,
-                                isWeekendFullShift: isFullWeekendShift
-                            });
+						                            workerSchedules[workerDay.workerId].schedule[dayName].push({
+						                                timeRange: `${startTime}-${endTime}`,
+						                                hours: finalPaidHours,
+						                                requiresBreak: breakInfo.requiresBreak,
+						                                isManualBreak: breakInfo.isManual,
+						                                manualBreak: breakInfo.manualBreak,
+						                                isWeekendFullShift: isFullWeekendShift
+						                            });
                             
-                            currentStart = timeSlots[i];
-                            currentEnd = timeSlots[i];
-                        }
-                    }
+						                            currentStart = timeSlots[i];
+						                            currentEnd = timeSlots[i];
+						                        }
+						                    }
                     
-                    // Save the last shift range
-                    const hours = currentEnd - currentStart + 1;
-                    const actualHours = hours * 0.5;
-                    const worker = workers.find(w => w.id === workerDay.workerId);
+						                    // Save the last shift range
+						                    const hours = currentEnd - currentStart + 1;
+						                    const actualHours = hours * 0.5;
+						                    const worker = workers.find(w => w.id === workerDay.workerId);
                     
-                    // Check if break required
-                    let requiresBreak = false;
+						                    // Check if break required
+						                    let requiresBreak = false;
                     
-                    // Weekend full-day rule: 12PM-6PM (index 10-21) gets break regardless of worker type
-                    const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6; // Saturday or Sunday
-                    const isFullWeekendShift = isWeekend && currentStart === 10 && currentEnd === 21; // 12PM-6PM
+						                    // Weekend full-day rule: 12PM-6PM (index 10-21) gets break regardless of worker type
+						                    const isWeekend = workerDay.dayIndex === 0 || workerDay.dayIndex === 6; // Saturday or Sunday
+						                    const isFullWeekendShift = isWeekend && currentStart === 10 && currentEnd === 21; // 12PM-6PM
                     
-                    if (isFullWeekendShift) {
-                        requiresBreak = true;
-                    } else {
-                        // Regular rule: students with 6+ hours get break
-                        requiresBreak = hours > 12 && worker && worker.type !== 'fullTime';
-                    }
+						                    if (isFullWeekendShift) {
+						                        requiresBreak = true;
+						                    } else {
+						                        // Regular rule: students with 6+ hours get break
+						                        requiresBreak = hours > 12 && worker && worker.type !== 'fullTime';
+						                    }
                     
-                    const paidHours = requiresBreak ? actualHours - 0.5 : actualHours;
+						                    const paidHours = requiresBreak ? actualHours - 0.5 : actualHours;
                     
-                    // Check for manual breaks on this day
-                    const manualBreakKey = `${workerDay.workerId}-${workerDay.dayIndex}`;
-                    const manualBreak = manualBreaks[manualBreakKey];
+						                    // Check for manual breaks on this day
+						                    const manualBreakKey = `${workerDay.workerId}-${workerDay.dayIndex}`;
+						                    const manualBreak = manualBreaks[manualBreakKey];
                     
-                    let finalPaidHours = paidHours;
-                    let breakInfo = { requiresBreak, isManual: false, manualBreak: null };
+						                    let finalPaidHours = paidHours;
+						                    let breakInfo = { requiresBreak, isManual: false, manualBreak: null };
                     
-                    if (manualBreak) {
-                        if (manualBreak.type === 'unpaid') {
-                            finalPaidHours = actualHours - (manualBreak.duration / 60);
-                        } else {
-                            finalPaidHours = actualHours; // Paid breaks don't reduce hours
-                        }
-                        breakInfo = { 
-                            requiresBreak: true, 
-                            isManual: true, 
-                            manualBreak: manualBreak 
-                        };
-                    }
+						                    if (manualBreak) {
+						                        if (manualBreak.type === 'unpaid') {
+						                            finalPaidHours = actualHours - (manualBreak.duration / 60);
+						                        } else {
+						                            finalPaidHours = actualHours; // Paid breaks don't reduce hours
+						                        }
+						                        breakInfo = { 
+						                            requiresBreak: true, 
+						                            isManual: true, 
+						                            manualBreak: manualBreak 
+						                        };
+						                    }
                     
-                    const startTime = times[currentStart];
-                    const endTime = currentEnd + 1 < times.length ? times[currentEnd + 1] : times[currentEnd];
+						                    const startTime = times[currentStart];
+						                    const endTime = currentEnd + 1 < times.length ? times[currentEnd + 1] : times[currentEnd];
                     
-                    workerSchedules[workerDay.workerId].schedule[dayName].push({
-                        timeRange: `${startTime}-${endTime}`,
-                        hours: finalPaidHours,
-                        requiresBreak: breakInfo.requiresBreak,
-                        isManualBreak: breakInfo.isManual,
-                        manualBreak: breakInfo.manualBreak,
-                        isWeekendFullShift: isFullWeekendShift
-                    });
-                });
+						                    workerSchedules[workerDay.workerId].schedule[dayName].push({
+						                        timeRange: `${startTime}-${endTime}`,
+						                        hours: finalPaidHours,
+						                        requiresBreak: breakInfo.requiresBreak,
+						                        isManualBreak: breakInfo.isManual,
+						                        manualBreak: breakInfo.manualBreak,
+						                        isWeekendFullShift: isFullWeekendShift
+						                    });
+						                });
                 
-                // Generate HTML content
-                let htmlContent = '';
+						                // Generate HTML content
+						                let htmlContent = '';
                 
-                // Header section
-                const semester = document.getElementById('semesterInput').value;
-                const version = document.getElementById('versionInput').value;
+						                // Header section
+						                const semester = document.getElementById('semesterInput').value;
+						                const version = document.getElementById('versionInput').value;
                 
-                htmlContent += '<div class="schedule-header">';
-                htmlContent += '<h4>📋 STUDENT WORKER SCHEDULE</h4>';
-                if (semester) htmlContent += `<div class="schedule-meta">Semester: ${semester}</div>`;
-                if (version) htmlContent += `<div class="schedule-meta">Version: ${version}</div>`;
-                htmlContent += '</div>';
+						                htmlContent += '<div class="schedule-header">';
+						                htmlContent += '<h4>📋 STUDENT WORKER SCHEDULE</h4>';
+						                if (semester) htmlContent += `<div class="schedule-meta">Semester: ${semester}</div>`;
+						                if (version) htmlContent += `<div class="schedule-meta">Version: ${version}</div>`;
+						                htmlContent += '</div>';
                 
-                // Sort workers by name
-                const sortedWorkers = Object.values(workerSchedules).sort((a, b) => a.name.localeCompare(b.name));
+						                // Sort workers by name
+						                const sortedWorkers = Object.values(workerSchedules).sort((a, b) => a.name.localeCompare(b.name));
                 
-                // Generate worker schedules
-                sortedWorkers.forEach(worker => {
-                    // Lighten the worker color for background
-                    const lightColor = worker.color + '30'; // Add transparency
-                    const darkColor = worker.color + 'CC'; // Darker version for header
+						                // Generate worker schedules
+						                sortedWorkers.forEach(worker => {
+						                    // Lighten the worker color for background
+						                    const lightColor = worker.color + '30'; // Add transparency
+						                    const darkColor = worker.color + 'CC'; // Darker version for header
                     
-                    htmlContent += `<div class="worker-schedule">`;
-                    htmlContent += `<div class="worker-header" style="background: ${darkColor};">${worker.name} Schedule</div>`;
-                    htmlContent += `<div class="worker-days" style="background: ${lightColor};">`;
+						                    htmlContent += `<div class="worker-schedule">`;
+						                    htmlContent += `<div class="worker-header" style="background: ${darkColor};">${worker.name} Schedule</div>`;
+						                    htmlContent += `<div class="worker-days" style="background: ${lightColor};">`;
                     
-                    // Calculate total hours for this worker
-                    let totalWeeklyHours = 0;
+						                    // Calculate total hours for this worker
+						                    let totalWeeklyHours = 0;
                     
-                    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
-                        const dayShifts = worker.schedule[day];
-                        htmlContent += '<div class="day-schedule">';
-                        htmlContent += `<span class="day-name">• ${day}:</span>`;
+						                    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
+						                        const dayShifts = worker.schedule[day];
+						                        htmlContent += '<div class="day-schedule">';
+						                        htmlContent += `<span class="day-name">• ${day}:</span>`;
                         
-                        if (dayShifts.length === 0) {
-                            htmlContent += '<span class="day-time">Off</span>';
-                        } else {
-                            const shiftStrings = dayShifts.map(shift => {
-                                let shiftText = shift.timeRange;
-                                if (shift.hours > 0) {
-                                    const hoursText = shift.hours % 1 === 0 ? shift.hours : shift.hours.toFixed(1);
-                                    shiftText += ` (${hoursText} Hour${shift.hours !== 1 ? 's' : ''}`;
+						                        if (dayShifts.length === 0) {
+						                            htmlContent += '<span class="day-time">Off</span>';
+						                        } else {
+						                            const shiftStrings = dayShifts.map(shift => {
+						                                let shiftText = shift.timeRange;
+						                                if (shift.hours > 0) {
+						                                    const hoursText = shift.hours % 1 === 0 ? shift.hours : shift.hours.toFixed(1);
+						                                    shiftText += ` (${hoursText} Hour${shift.hours !== 1 ? 's' : ''}`;
                                     
-                                    if (shift.requiresBreak) {
-                                        if (shift.isManualBreak) {
-                                            const breakDuration = shift.manualBreak.duration;
-                                            shiftText += ` + ${breakDuration} Min ${shift.manualBreak.type.charAt(0).toUpperCase() + shift.manualBreak.type.slice(1)} Break`;
-                                            if (shift.manualBreak.notes) {
-                                                shiftText += ` (${shift.manualBreak.notes})`;
-                                            }
-                                        } else if (shift.isWeekendFullShift) {
-                                            shiftText += ' + 30 Minute Break';
-                                        } else {
-                                            shiftText += ' + 30 Minute Break';
-                                        }
-                                    }
-                                    shiftText += ')';
+						                                    if (shift.requiresBreak) {
+						                                        if (shift.isManualBreak) {
+						                                            const breakDuration = shift.manualBreak.duration;
+						                                            shiftText += ` + ${breakDuration} Min ${shift.manualBreak.type.charAt(0).toUpperCase() + shift.manualBreak.type.slice(1)} Break`;
+						                                            if (shift.manualBreak.notes) {
+						                                                shiftText += ` (${shift.manualBreak.notes})`;
+						                                            }
+						                                        } else if (shift.isWeekendFullShift) {
+						                                            shiftText += ' + 30 Minute Break';
+						                                        } else {
+						                                            shiftText += ' + 30 Minute Break';
+						                                        }
+						                                    }
+						                                    shiftText += ')';
                                     
-                                    // Add to total (paid hours only)
-                                    totalWeeklyHours += shift.hours;
-                                }
-                                return shiftText;
-                            });
-                            htmlContent += `<span class="day-time">${shiftStrings.join(', ')}</span>`;
-                        }
-                        htmlContent += '</div>';
-                    });
+						                                    // Add to total (paid hours only)
+						                                    totalWeeklyHours += shift.hours;
+						                                }
+						                                return shiftText;
+						                            });
+						                            htmlContent += `<span class="day-time">${shiftStrings.join(', ')}</span>`;
+						                        }
+						                        htmlContent += '</div>';
+						                    });
                     
-                    // Add total hours with new styling
-                    const totalHoursText = totalWeeklyHours % 1 === 0 ? totalWeeklyHours : totalWeeklyHours.toFixed(1);
-                    htmlContent += `<div class="total-hours">`;
-                    htmlContent += `<span>TOTAL:</span> <span>${totalHoursText} Hours Per Week</span>`;
-                    htmlContent += '</div>';
+						                    // Add total hours with new styling
+						                    const totalHoursText = totalWeeklyHours % 1 === 0 ? totalWeeklyHours : totalWeeklyHours.toFixed(1);
+						                    htmlContent += `<div class="total-hours">`;
+						                    htmlContent += `<span>TOTAL:</span> <span>${totalHoursText} Hours Per Week</span>`;
+						                    htmlContent += '</div>';
                     
-                    htmlContent += '</div></div>';
-                });
+						                    htmlContent += '</div></div>';
+						                });
                 
-                // Generate plain text for copying
-                let textOutput = 'STUDENT WORKER SCHEDULE\n========================\n\n';
-                if (semester) textOutput += `Semester: ${semester}\n`;
-                if (version) textOutput += `Version: ${version}\n`;
-                if (semester || version) textOutput += '\n';
+						                // Generate plain text for copying
+						                let textOutput = 'STUDENT WORKER SCHEDULE\n========================\n\n';
+						                if (semester) textOutput += `Semester: ${semester}\n`;
+						                if (version) textOutput += `Version: ${version}\n`;
+						                if (semester || version) textOutput += '\n';
                 
-                sortedWorkers.forEach((worker, index) => {
-                    if (index > 0) textOutput += '\n';
-                    textOutput += `${worker.name} Schedule\n`;
+						                sortedWorkers.forEach((worker, index) => {
+						                    if (index > 0) textOutput += '\n';
+						                    textOutput += `${worker.name} Schedule\n`;
                     
-                    // Calculate total hours for this worker
-                    let totalWeeklyHours = 0;
+						                    // Calculate total hours for this worker
+						                    let totalWeeklyHours = 0;
                     
-                    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
-                        const dayShifts = worker.schedule[day];
-                        textOutput += `• ${day}: `;
+						                    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
+						                        const dayShifts = worker.schedule[day];
+						                        textOutput += `• ${day}: `;
                         
-                        if (dayShifts.length === 0) {
-                            textOutput += 'Off\n';
-                        } else {
-                            const shiftStrings = dayShifts.map(shift => {
-                                let shiftText = shift.timeRange;
-                                if (shift.hours > 0) {
-                                    const hoursText = shift.hours % 1 === 0 ? shift.hours : shift.hours.toFixed(1);
-                                    shiftText += ` (${hoursText} Hour${shift.hours !== 1 ? 's' : ''}`;
+						                        if (dayShifts.length === 0) {
+						                            textOutput += 'Off\n';
+						                        } else {
+						                            const shiftStrings = dayShifts.map(shift => {
+						                                let shiftText = shift.timeRange;
+						                                if (shift.hours > 0) {
+						                                    const hoursText = shift.hours % 1 === 0 ? shift.hours : shift.hours.toFixed(1);
+						                                    shiftText += ` (${hoursText} Hour${shift.hours !== 1 ? 's' : ''}`;
                                     
-                                    if (shift.requiresBreak) {
-                                        if (shift.isManualBreak) {
-                                            const breakDuration = shift.manualBreak.duration;
-                                            shiftText += ` + ${breakDuration} Min ${shift.manualBreak.type.charAt(0).toUpperCase() + shift.manualBreak.type.slice(1)} Break`;
-                                            if (shift.manualBreak.notes) {
-                                                shiftText += ` (${shift.manualBreak.notes})`;
-                                            }
-                                        } else if (shift.isWeekendFullShift) {
-                                            shiftText += ' + 30 Minute Break';
-                                        } else {
-                                            shiftText += ' + 30 Minute Break';
-                                        }
-                                    }
-                                    shiftText += ')';
+						                                    if (shift.requiresBreak) {
+						                                        if (shift.isManualBreak) {
+						                                            const breakDuration = shift.manualBreak.duration;
+						                                            shiftText += ` + ${breakDuration} Min ${shift.manualBreak.type.charAt(0).toUpperCase() + shift.manualBreak.type.slice(1)} Break`;
+						                                            if (shift.manualBreak.notes) {
+						                                                shiftText += ` (${shift.manualBreak.notes})`;
+						                                            }
+						                                        } else if (shift.isWeekendFullShift) {
+						                                            shiftText += ' + 30 Minute Break';
+						                                        } else {
+						                                            shiftText += ' + 30 Minute Break';
+						                                        }
+						                                    }
+						                                    shiftText += ')';
                                     
-                                    // Add to total (paid hours only)
-                                    totalWeeklyHours += shift.hours;
-                                }
-                                return shiftText;
-                            });
-                            textOutput += shiftStrings.join(', ') + '\n';
-                        }
-                    });
+						                                    // Add to total (paid hours only)
+						                                    totalWeeklyHours += shift.hours;
+						                                }
+						                                return shiftText;
+						                            });
+						                            textOutput += shiftStrings.join(', ') + '\n';
+						                        }
+						                    });
                     
-                    // Add total hours
-                    const totalHoursText = totalWeeklyHours % 1 === 0 ? totalWeeklyHours : totalWeeklyHours.toFixed(1);
-                    textOutput += `TOTAL: ${totalHoursText} Hours Per Week\n`;
-                });
+						                    // Add total hours
+						                    const totalHoursText = totalWeeklyHours % 1 === 0 ? totalWeeklyHours : totalWeeklyHours.toFixed(1);
+						                    textOutput += `TOTAL: ${totalHoursText} Hours Per Week\n`;
+						                });
                 
-                // Add copy-friendly text area
-                htmlContent += `<div class="copy-text" id="copyText">${textOutput}</div>`;
+						                // Add copy-friendly text area
+						                htmlContent += `<div class="copy-text" id="copyText">${textOutput}</div>`;
                 
-                // Show the results
-                exportContent.innerHTML = htmlContent;
-                exportResults.style.display = 'block';
-                exportResults.scrollIntoView({ behavior: 'smooth' });
-            });
+						                // Show the results
+						                exportContent.innerHTML = htmlContent;
+						                exportResults.style.display = 'block';
+						                exportResults.scrollIntoView({ behavior: 'smooth' });
+						            });
             
-            // Make functions available globally
-            window.toggleCategory = toggleCategory;
-            window.openManualBreakModal = openManualBreakModal;
-            window.closeManualBreakModal = closeManualBreakModal;
-            window.addManualBreak = addManualBreak;
-            window.updateMaxHours = updateMaxHours;
-            window.unlockAllShifts = unlockAllShifts;
+						            // Make functions available globally
+						            window.toggleCategory = toggleCategory;
+						            window.openAddWorkerModal = openAddWorkerModal;
+						            window.closeModal = closeModal;
+						            window.addWorker = addWorker;
+						            window.openManualBreakModal = openManualBreakModal;
+						            window.closeManualBreakModal = closeManualBreakModal;
+						            window.addManualBreak = addManualBreak;
+						            window.closeManualShiftModal = closeManualShiftModal;
+						            window.addManualShift = addManualShift;
+						            window.updateMaxHours = updateMaxHours;
+						            window.unlockAllShifts = unlockAllShifts;
+						            window.filterWorker = filterWorker;
+						            window.clearWorkerFilter = clearWorkerFilter;
+						            window.startNew = startNew;
+						            window.startBlank = startBlank;
+						            window.loadFromStart = loadFromStart;
+						            window.backToMenu = backToMenu;
+						            window.toggleSidebar = toggleSidebar;
             
-            window.listenersAdded = true;
-            console.log('Event listeners added successfully');
-        }
+						            window.listenersAdded = true;
+						            console.log('Event listeners added successfully');
+						        }
 
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('startScreen').style.display = 'flex';
-            document.getElementById('mainApp').style.display = 'none';
+						        // Initialize page
+						        document.addEventListener('DOMContentLoaded', function() {
+						            document.getElementById('startScreen').style.display = 'flex';
+						            document.getElementById('mainApp').style.display = 'none';
             
-            // Add load state listener for start screen
-            document.getElementById('startLoadFile').addEventListener('change', loadState);
-        });
-    </script>
-</body>
-</html>
+						            // Add load state listener for start screen
+						            document.getElementById('startLoadFile').addEventListener('change', loadState);
+						        });
+						    </script>
+						</body>
+						</html>
